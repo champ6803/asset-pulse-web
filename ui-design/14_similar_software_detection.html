@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Consolidation</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Similar Software</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Analytics</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Memos</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">8</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">David Kim</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="page-header" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Similar Software Detection</h1>
+                    <p class="text-gray-600 mt-2">AI-powered cross-subsidiary software matching to identify consolidation opportunities</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white border border-gray-300 rounded-lg px-4 py-2 flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Scope:</span>
+                        <select class="bg-transparent border-none text-sm focus:outline-none">
+                            <option>Group - All 25 subsidiaries</option>
+                            <option>Subsidiary Level</option>
+                        </select>
+                    </div>
+                    <select class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option>All Categories</option>
+                        <option>Development Tools</option>
+                        <option>Design Software</option>
+                        <option>Analytics</option>
+                        <option>Communication</option>
+                        <option>Project Management</option>
+                    </select>
+                    <div class="bg-white border border-gray-300 rounded-lg px-4 py-2 flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Similarity:</span>
+                        <input type="range" min="50" max="100" value="80" class="w-20 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                        <span class="text-sm font-medium text-primary-600">>80%</span>
+                    </div>
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="summary-banner" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600">12</div>
+                    <div class="text-sm text-gray-600 mt-1">Similar Software Groups</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600">47</div>
+                    <div class="text-sm text-gray-600 mt-1">Applications Identified</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600">฿18.7M</div>
+                    <div class="text-sm text-gray-600 mt-1">Total Potential Savings</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-orange-600">23</div>
+                    <div class="text-sm text-gray-600 mt-1">Subsidiaries Affected</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="controls-section" class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-gray-700">Sort by:</span>
+                <select class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option>Savings (High to Low)</option>
+                    <option>Similarity Score</option>
+                    <option>Number of Apps</option>
+                    <option>Subsidiaries Count</option>
+                </select>
+            </div>
+            <div class="text-sm text-gray-500">
+                Showing 12 groups • Updated 5 minutes ago
+            </div>
+        </div>
+
+        <div id="similar-groups-grid" class="space-y-6">
+            <div id="group-1" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-palette text-orange-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Group #1: Design & Creative Tools</h3>
+                            <p class="text-sm text-gray-500">4 applications across 8 subsidiaries</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-orange-500 h-2 rounded-full" style="width: 92%"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-orange-600">92% Similar</span>
+                        </div>
+                        <div class="text-2xl font-bold text-green-600">฿4.2M</div>
+                        <div class="text-xs text-gray-500">potential savings</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8154310be6-a5c24746d6c6d1f4217a.png" alt="Adobe Creative Suite logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Adobe Creative Cloud</h4>
+                                <p class="text-xs text-gray-500">SCBX Bank</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>1,245 users</div>
+                            <div class="font-semibold text-gray-900">฿8.2M/year</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/2a6bda910a-be7814f04383f4df1120.png" alt="Figma app logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Figma Enterprise</h4>
+                                <p class="text-xs text-gray-500">SCB Tech</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>456 users</div>
+                            <div class="font-semibold text-gray-900">฿1.8M/year</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/66306c90ce-9235e597d319aea37a7b.png" alt="Sketch app logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Sketch Business</h4>
+                                <p class="text-xs text-gray-500">SCB Securities</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>123 users</div>
+                            <div class="font-semibold text-gray-900">฿0.6M/year</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/7cf90dfdc0-3c05cb1260e7b5783352.png" alt="Canva Pro logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Canva Pro</h4>
+                                <p class="text-xs text-gray-500">SCB Asset</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>89 users</div>
+                            <div class="font-semibold text-gray-900">฿0.3M/year</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div id="ai-analysis-1" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-robot text-white text-xs"></i>
+                            </div>
+                            <h4 class="font-medium text-blue-900">AI Analysis</h4>
+                        </div>
+                        <p class="text-sm text-blue-800 mb-2">High feature overlap detected in vector editing, collaborative design, and brand asset management capabilities.</p>
+                        <p class="text-sm font-medium text-blue-900">Recommendation: Consolidate to Adobe Creative Cloud with Figma for collaboration.</p>
+                    </div>
+
+                    <div id="common-features-1" class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-3">Common Features</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Vector Graphics Editing
+                            </div>
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Team Collaboration
+                            </div>
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Brand Asset Libraries
+                            </div>
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Template Management
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="summary-1" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h4 class="font-medium text-green-900 mb-3">Total Summary</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tools:</span>
+                                <span class="font-medium">4</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Users:</span>
+                                <span class="font-medium">1,913</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Current Cost:</span>
+                                <span class="font-medium">฿10.9M/year</span>
+                            </div>
+                            <div class="border-t border-green-200 pt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-green-700 font-medium">Consolidation Potential:</span>
+                                    <span class="text-xl font-bold text-green-600">฿4.2M</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                            <i class="fas fa-eye mr-2"></i>
+                            View Consolidation Plan
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                            Dismiss
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Export
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Last updated: 2 hours ago
+                    </div>
+                </div>
+            </div>
+
+            <div id="group-2" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-bar text-purple-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Group #2: Analytics Platforms</h3>
+                            <p class="text-sm text-gray-500">3 applications across 12 subsidiaries</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 87%"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-purple-600">87% Similar</span>
+                        </div>
+                        <div class="text-2xl font-bold text-green-600">฿3.8M</div>
+                        <div class="text-xs text-gray-500">potential savings</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/b86d32c4f9-a868c6a89ce153754f25.png" alt="Tableau software logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Tableau</h4>
+                                <p class="text-xs text-gray-500">6 subsidiaries</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>892 users</div>
+                            <div class="font-semibold text-gray-900">฿5.4M/year</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a84df924ba-351928575ce040e1577e.png" alt="Microsoft Power BI logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Power BI</h4>
+                                <p class="text-xs text-gray-500">4 subsidiaries</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>567 users</div>
+                            <div class="font-semibold text-gray-900">฿2.1M/year</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/fc1d8c5ce1-1da3ba9f9273b6d71815.png" alt="Looker analytics logo icon" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Looker</h4>
+                                <p class="text-xs text-gray-500">2 subsidiaries</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>234 users</div>
+                            <div class="font-semibold text-gray-900">฿1.2M/year</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div id="ai-analysis-2" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-robot text-white text-xs"></i>
+                            </div>
+                            <h4 class="font-medium text-blue-900">AI Analysis</h4>
+                        </div>
+                        <p class="text-sm text-blue-800 mb-2">Similar data visualization, dashboard creation, and business intelligence capabilities across all platforms.</p>
+                        <p class="text-sm font-medium text-blue-900">Recommendation: Standardize on Tableau for enterprise-wide analytics.</p>
+                    </div>
+
+                    <div id="common-features-2" class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-3">Common Features</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Interactive Dashboards
+                            </div>
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Data Visualization
+                            </div>
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                SQL Query Interface
+                            </div>
+                            <div class="flex items-center text-sm text-gray-700">
+                                <i class="fas fa-check text-green-500 text-xs mr-2"></i>
+                                Report Scheduling
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="summary-2" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h4 class="font-medium text-green-900 mb-3">Total Summary</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tools:</span>
+                                <span class="font-medium">3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Users:</span>
+                                <span class="font-medium">1,693</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Current Cost:</span>
+                                <span class="font-medium">฿8.7M/year</span>
+                            </div>
+                            <div class="border-t border-green-200 pt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-green-700 font-medium">Consolidation Potential:</span>
+                                    <span class="text-xl font-bold text-green-600">฿3.8M</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                            <i class="fas fa-eye mr-2"></i>
+                            View Consolidation Plan
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                            Dismiss
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Export
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Last updated: 4 hours ago
+                    </div>
+                </div>
+            </div>
+
+            <div id="group-3" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-comments text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Group #3: Communication Tools</h3>
+                            <p class="text-sm text-gray-500">2 applications across 15 subsidiaries</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 95%"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-blue-600">95% Similar</span>
+                        </div>
+                        <div class="text-2xl font-bold text-green-600">฿2.1M</div>
+                        <div class="text-xs text-gray-500">potential savings</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <img class="h-8 w-8 rounded" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/53ada5b98a-37a75b7429573ff874ae.png" alt="Slack logo icon purple" />
+                            <div>
+                                <h4 class="font-medium text-gray-900 text-sm">Slack Enterprise</h4>
+                                <p class="text-xs text-gray-500">12 subsidiaries</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div>3,245 users</div>
+                            <div class="font-semibold text-gray-900">฿4.8M/year</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-chart-bar text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-900">Analytics Suite</h4>
+                                    <p class="text-xs text-gray-600">Business Intelligence</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">85% Match</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('scope-filter').addEventListener('change', function() {
+            console.log('Scope changed:', this.value);
+        });
+
+        document.getElementById('category-filter').addEventListener('change', function() {
+            console.log('Category changed:', this.value);
+        });
+
+        document.querySelectorAll('.software-group').forEach(group => {
+            group.addEventListener('click', function() {
+                console.log('Group clicked');
+            });
+        });
+    </script>
+</body>
+</html>

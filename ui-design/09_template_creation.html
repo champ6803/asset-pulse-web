@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Team</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Templates</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Approvals</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Requests</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search templates..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">7</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">Michael Torres</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center space-x-4 mb-6">
+                <button class="text-gray-500 hover:text-gray-700 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Templates
+                </button>
+            </div>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Create Purchase Template</h1>
+                    <p class="text-gray-600 mt-2">Build a reusable software package for your team</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        Preview Template
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div id="main-form" class="lg:col-span-2 space-y-8">
+                <div id="basic-info-section" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Template Name *</label>
+                            <input type="text" placeholder="e.g., Senior Developer Pack" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea rows="4" placeholder="Describe what this template includes and when to use it..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="target-scope-section" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Target & Scope</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Target Type *</label>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="radio" name="targetType" value="newHire" class="text-primary-600 focus:ring-primary-500 mr-3">
+                                    <div>
+                                        <div class="font-medium text-gray-900">New Hire Onboarding</div>
+                                        <div class="text-sm text-gray-600">Standard package for new employees</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="targetType" value="roleBased" class="text-primary-600 focus:ring-primary-500 mr-3" checked>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Role-Based</div>
+                                        <div class="text-sm text-gray-600">Specific to job roles and responsibilities</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="targetType" value="department" class="text-primary-600 focus:ring-primary-500 mr-3">
+                                    <div>
+                                        <div class="font-medium text-gray-900">Department Standard</div>
+                                        <div class="text-sm text-gray-600">Common tools for entire department</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Scope Department *</label>
+                                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    <option>Select department</option>
+                                    <option>Engineering</option>
+                                    <option>Design</option>
+                                    <option>Marketing</option>
+                                    <option>Sales</option>
+                                    <option>Data & Analytics</option>
+                                    <option>Human Resources</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Budget Limit *</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="200,000" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                    <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">฿</span>
+                                    <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">/year</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="app-selection-section" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Application Selection</h2>
+                        <span class="text-sm text-gray-600">5 apps selected</span>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="relative mb-4">
+                            <input type="text" placeholder="Search applications..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">All</button>
+                            <button class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1 rounded-full text-sm">DevOps</button>
+                            <button class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1 rounded-full text-sm">Collaboration</button>
+                            <button class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1 rounded-full text-sm">Security</button>
+                            <button class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1 rounded-full text-sm">Analytics</button>
+                        </div>
+                    </div>
+
+                    <div id="app-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-github text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">GitHub Enterprise</h3>
+                                        <p class="text-sm text-gray-600">DevOps</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Tier:</span>
+                                    <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                        <option>Team</option>
+                                        <option>Enterprise</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Annual Cost:</span>
+                                    <span class="text-sm font-medium">฿48,000</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Required:</span>
+                                    <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">User can edit:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-docker text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Docker Hub</h3>
+                                        <p class="text-sm text-gray-600">DevOps</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Tier:</span>
+                                    <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                        <option>Pro</option>
+                                        <option>Team</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Annual Cost:</span>
+                                    <span class="text-sm font-medium">฿18,000</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Required:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">User can edit:</span>
+                                    <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-slack text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Slack</h3>
+                                        <p class="text-sm text-gray-600">Collaboration</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Tier:</span>
+                                    <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                        <option>Pro</option>
+                                        <option>Business+</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Annual Cost:</span>
+                                    <span class="text-sm font-medium">฿24,000</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Required:</span>
+                                    <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">User can edit:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-aws text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">AWS</h3>
+                                        <p class="text-sm text-gray-600">DevOps</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Tier:</span>
+                                    <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                        <option>Business</option>
+                                        <option>Enterprise</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Annual Cost:</span>
+                                    <span class="text-sm font-medium">฿36,000</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Required:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">User can edit:</span>
+                                    <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-jira text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Jira</h3>
+                                        <p class="text-sm text-gray-600">DevOps</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="text-primary-600 focus:ring-primary-500 rounded">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Tier:</span>
+                                    <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                        <option>Standard</option>
+                                        <option>Premium</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Annual Cost:</span>
+                                    <span class="text-sm font-medium">฿21,000</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Required:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">User can edit:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors opacity-60">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-green-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-node-js text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">MongoDB Atlas</h3>
+                                        <p class="text-sm text-gray-600">Database</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Tier:</span>
+                                    <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                        <option>M10</option>
+                                        <option>M20</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Annual Cost:</span>
+                                    <span class="text-sm font-medium">฿15,000</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Required:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">User can edit:</span>
+                                    <input type="checkbox" class="text-primary-600 focus:ring-primary-500 rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sidebar-summary" class="lg:col-span-1">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 sticky top-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Template Summary</h3>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Total Applications:</span>
+                            <span class="font-medium text-gray-900">5 apps</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Total Cost:</span>
+                            <span class="font-medium text-gray-900">฿147,000/year</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Budget Limit:</span>
+                            <span class="font-medium text-gray-900">฿200,000/year</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-600">Budget Usage</span>
+                            <span class="text-sm font-medium text-green-600">73.5%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 73.5%"></div>
+                        </div>
+                        <div class="flex items-center justify-between mt-2 text-sm">
+                            <span class="text-green-600">฿147,000 used</span>
+                            <span class="text-gray-600">฿53,000 remaining</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="font-medium text-gray-900 mb-3">Selected Applications</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="h-6 w-6 bg-gray-800 rounded flex items-center justify-center">
+                                        <i class="fab fa-github text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-sm text-gray-900">GitHub Enterprise</span>
+                                </div>
+                                <span class="text-sm text-gray-600">฿48,000</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="h-6 w-6 bg-blue-600 rounded flex items-center justify-center">
+                                        <i class="fab fa-docker text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-sm text-gray-900">Docker Hub</span>
+                                </div>
+                                <span class="text-sm text-gray-600">฿18,000</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="h-6 w-6 bg-purple-600 rounded flex items-center justify-center">
+                                        <i class="fab fa-slack text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-sm text-gray-900">Slack</span>
+                                </div>
+                                <span class="text-sm text-gray-600">฿24,000</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="h-6 w-6 bg-orange-500 rounded flex items-center justify-center">
+                                        <i class="fab fa-aws text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-sm text-gray-600">AWS</span>
+                                </div>
+                                <span class="text-sm text-gray-600">฿18,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('save-template').addEventListener('click', function() {
+            console.log('Template saved');
+        });
+
+        document.getElementById('category-select').addEventListener('change', function() {
+            console.log('Category changed:', this.value);
+        });
+
+        document.getElementById('department-select').addEventListener('change', function() {
+            console.log('Department changed:', this.value);
+        });
+    </script>
+</body>
+</html>

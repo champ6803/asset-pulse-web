@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Team</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Templates</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Approvals</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Requests</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search templates..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">7</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">Michael Torres</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Purchase Templates</h1>
+                    <p class="text-gray-600 mt-2">Create and manage reusable software packages for different roles</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Export
+                    </button>
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create New Template
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="filter-section" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div id="filter-tabs" class="flex space-x-1">
+                    <button class="bg-primary-100 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium">All (12)</button>
+                    <button class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Active (8)</button>
+                    <button class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Draft (4)</button>
+                </div>
+                <div id="filter-controls" class="flex items-center space-x-4">
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option>All Departments</option>
+                        <option>Engineering</option>
+                        <option>Design</option>
+                        <option>Marketing</option>
+                        <option>Sales</option>
+                    </select>
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option>All Scopes</option>
+                        <option>New Hire</option>
+                        <option>Role-Based</option>
+                        <option>Department Standard</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="template-card-1" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-code text-blue-600 text-xl"></i>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">Active</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Developer Pack</h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                    <span>Engineering</span>
+                    <span>•</span>
+                    <span>New Hire</span>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Applications:</span>
+                        <span class="font-medium">8 apps</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Cost per user/year:</span>
+                        <span class="font-medium">฿150,000</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Budget limit:</span>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">฿200,000</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>Created: Oct 15, 2024</span>
+                        <span>Last used: 2 days ago</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>Times used: 23</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">View</button>
+                        <button class="flex-1 bg-primary-100 text-primary-700 py-2 px-3 rounded-lg text-sm hover:bg-primary-200 transition-colors">Edit</button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="template-card-2" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-palette text-purple-600 text-xl"></i>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">Active</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Designer Pack</h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                    <span>Design</span>
+                    <span>•</span>
+                    <span>Role-Based</span>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Applications:</span>
+                        <span class="font-medium">5 apps</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Cost per user/year:</span>
+                        <span class="font-medium">฿106,800</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Budget limit:</span>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">฿120,000</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>Created: Oct 10, 2024</span>
+                        <span>Last used: 1 week ago</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>Times used: 15</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">View</button>
+                        <button class="flex-1 bg-primary-100 text-primary-700 py-2 px-3 rounded-lg text-sm hover:bg-primary-200 transition-colors">Edit</button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="template-card-3" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bullhorn text-green-600 text-xl"></i>
+                    </div>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">Draft</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Marketing Pack</h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                    <span>Marketing</span>
+                    <span>•</span>
+                    <span>Department Standard</span>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Applications:</span>
+                        <span class="font-medium">6 apps</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Cost per user/year:</span>
+                        <span class="font-medium">฿81,000</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Budget limit:</span>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">฿90,000</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>Created: Oct 18, 2024</span>
+                        <span>Last used: Never</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>Times used: 0</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">View</button>
+                        <button class="flex-1 bg-primary-100 text-primary-700 py-2 px-3 rounded-lg text-sm hover:bg-primary-200 transition-colors">Edit</button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="template-card-4" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-indigo-600 text-xl"></i>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">Active</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Analytics Pack</h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                    <span>Data</span>
+                    <span>•</span>
+                    <span>Role-Based</span>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Applications:</span>
+                        <span class="font-medium">4 apps</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Cost per user/year:</span>
+                        <span class="font-medium">฿180,000</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Budget limit:</span>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">฿200,000</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>Created: Oct 5, 2024</span>
+                        <span>Last used: 3 days ago</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>Times used: 8</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">View</button>
+                        <button class="flex-1 bg-primary-100 text-primary-700 py-2 px-3 rounded-lg text-sm hover:bg-primary-200 transition-colors">Edit</button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="template-card-5" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-handshake text-orange-600 text-xl"></i>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">Active</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Sales Pack</h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                    <span>Sales</span>
+                    <span>•</span>
+                    <span>New Hire</span>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Applications:</span>
+                        <span class="font-medium">7 apps</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Cost per user/year:</span>
+                        <span class="font-medium">฿95,000</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Budget limit:</span>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">฿110,000</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>Created: Sep 28, 2024</span>
+                        <span>Last used: 1 day ago</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>Times used: 12</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">View</button>
+                        <button class="flex-1 bg-primary-100 text-primary-700 py-2 px-3 rounded-lg text-sm hover:bg-primary-200 transition-colors">Edit</button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="template-card-6" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-pink-600 text-xl"></i>
+                    </div>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">Draft</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">HR Pack</h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+                    <span>Human Resources</span>
+                    <span>•</span>
+                    <span>Department Standard</span>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Applications:</span>
+                        <span class="font-medium">3 apps</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Cost per user/year:</span>
+                        <span class="font-medium">฿45,000</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Budget limit:</span>
+                        <div class="flex items-center">
+                            <span class="font-medium mr-2">฿50,000</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>Created: Oct 20, 2024</span>
+                        <span>Last used: Never</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>Times used: 0</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">View</button>
+                        <button class="flex-1 bg-primary-100 text-primary-700 py-2 px-3 rounded-lg text-sm hover:bg-primary-200 transition-colors">Edit</button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pagination-section" class="mt-8 flex items-center justify-between">
+            <p class="text-sm text-gray-700">
+                Showing <span class="font-medium">1</span> to <span class="font-medium">6</span> of <span class="font-medium">12</span> templates
+            </p>
+            <div class="flex space-x-2">
+                <button class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                    Previous
+                </button>
+                <button class="px-3 py-2 text-sm bg-primary-600 text-white rounded-lg">1</button>
+                <button class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                <button class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            console.log('Search:', e.target.value);
+        });
+
+        document.getElementById('category-filter').addEventListener('change', function(e) {
+            console.log('Filter category:', e.target.value);
+        });
+
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('Template clicked:', this.querySelector('h3').textContent);
+            });
+        });
+
+        const actionButtons = document.querySelectorAll('[data-action="edit"], [data-action="duplicate"], [data-action="delete"]');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.getAttribute('data-action');
+                const templateName = this.closest('.template-card').querySelector('h3').textContent;
+                console.log(`${action} template:`, templateName);
+            });
+        });
+    </script>
+</body>
+</html>

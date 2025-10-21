@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/treemap.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+        .editor-content {
+            min-height: 600px;
+            line-height: 1.8;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Consolidation</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Similar Software</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Analytics</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Memos</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">8</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">David Kim</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="flex items-center space-x-3 mb-2">
+                        <h1 class="text-3xl font-bold text-gray-900">AI-Generated Business Case Memo</h1>
+                        <div class="flex items-center space-x-2 bg-blue-50 px-3 py-1 rounded-full">
+                            <i class="fas fa-robot text-blue-600 text-sm"></i>
+                            <span class="text-sm font-medium text-blue-700">AI-Generated</span>
+                            <span class="text-gray-400">•</span>
+                            <span class="text-sm text-blue-700">Editable</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">Professional memo for Design Tools consolidation opportunity across SCBX Group</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-file-pdf mr-2 text-red-500"></i>
+                        Export PDF
+                    </button>
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-paper-plane mr-2 text-blue-500"></i>
+                        Send for Review
+                    </button>
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Draft
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="memo-container" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div id="memo-editor" class="lg:col-span-3">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div id="editor-toolbar" class="border-b border-gray-200 p-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                                <button class="px-3 py-1 text-sm font-medium rounded-md bg-white text-gray-900 shadow-sm">Edit</button>
+                                <button class="px-3 py-1 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900">Preview</button>
+                            </div>
+                            <div class="h-6 w-px bg-gray-300"></div>
+                            <div class="flex items-center space-x-2">
+                                <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-bold text-sm"></i>
+                                </button>
+                                <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-italic text-sm"></i>
+                                </button>
+                                <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-underline text-sm"></i>
+                                </button>
+                            </div>
+                            <div class="h-6 w-px bg-gray-300"></div>
+                            <div class="flex items-center space-x-2">
+                                <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-list-ul text-sm"></i>
+                                </button>
+                                <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-table text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="memo-content" class="p-8 editor-content">
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold text-gray-900 mb-2">MEMORANDUM</h1>
+                            <div class="w-24 h-1 bg-primary-600 mx-auto"></div>
+                        </div>
+
+                        <div id="memo-header" class="grid grid-cols-2 gap-x-8 gap-y-4 mb-8 text-sm">
+                            <div class="flex">
+                                <span class="font-semibold w-16">TO:</span>
+                                <span class="text-gray-700">SCBX Group Executive Committee</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-semibold w-16">DATE:</span>
+                                <span class="text-gray-700">October 21, 2025</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-semibold w-16">FROM:</span>
+                                <span class="text-gray-700">David Kim, Group CTO</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-semibold w-16">CC:</span>
+                                <span class="text-gray-700">CFO, Subsidiary CTOs</span>
+                            </div>
+                            <div class="flex col-span-2">
+                                <span class="font-semibold w-16">RE:</span>
+                                <span class="text-gray-700 font-medium">Design Tools Consolidation - Strategic Cost Optimization Initiative</span>
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-300 mb-8">
+
+                        <div id="executive-summary" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Executive Summary</h2>
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <i class="fas fa-piggy-bank text-green-600"></i>
+                                    <span class="font-semibold text-green-800">Projected Annual Savings: ฿3.2M (31% cost reduction)</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                This memo presents a strategic opportunity to consolidate design software across SCBX Group's 8 subsidiaries. Through standardization on Adobe Creative Cloud Enterprise, we can achieve significant cost savings while improving collaboration and operational efficiency. The consolidation affects 156 design professionals across our organization and requires a 6-month implementation timeline.
+                            </p>
+                        </div>
+
+                        <div id="current-state" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Current State Analysis</h2>
+                            <p class="text-gray-700 mb-4">Our analysis reveals significant fragmentation in design tool procurement:</p>
+                            <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-6">
+                                <li>Three different design platforms across 8 subsidiaries</li>
+                                <li>Inconsistent licensing models and pricing structures</li>
+                                <li>Limited cross-subsidiary collaboration capabilities</li>
+                                <li>Redundant training and support costs</li>
+                            </ul>
+
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4">Current Software Distribution</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="text-left p-3 font-medium text-gray-700">Software</th>
+                                                <th class="text-left p-3 font-medium text-gray-700">Subsidiaries</th>
+                                                <th class="text-left p-3 font-medium text-gray-700">Users</th>
+                                                <th class="text-left p-3 font-medium text-gray-700">Annual Cost</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="p-3 font-medium">Adobe Creative Cloud</td>
+                                                <td class="p-3 text-gray-600">5</td>
+                                                <td class="p-3 text-gray-600">98</td>
+                                                <td class="p-3 text-gray-600">฿8.2M</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 font-medium">Figma Enterprise</td>
+                                                <td class="p-3 text-gray-600">2</td>
+                                                <td class="p-3 text-gray-600">42</td>
+                                                <td class="p-3 text-gray-600">฿1.8M</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-3 font-medium">Sketch Business</td>
+                                                <td class="p-3 text-gray-600">1</td>
+                                                <td class="p-3 text-gray-600">16</td>
+                                                <td class="p-3 text-gray-600">฿0.6M</td>
+                                            </tr>
+                                            <tr class="bg-gray-50 font-medium">
+                                                <td class="p-3">Total</td>
+                                                <td class="p-3">8</td>
+                                                <td class="p-3">156</td>
+                                                <td class="p-3">฿10.6M</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="proposed-solution" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Proposed Solution</h2>
+                            <p class="text-gray-700 mb-4">
+                                We recommend consolidating all design operations on Adobe Creative Cloud Enterprise with group licensing. This approach provides:
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <h4 class="font-semibold text-blue-900 mb-2">Technical Benefits</h4>
+                                    <ul class="text-sm text-blue-800 space-y-1">
+                                        <li>• Unified creative workflow</li>
+                                        <li>• Cross-platform compatibility</li>
+                                        <li>• Enhanced collaboration tools</li>
+                                        <li>• Centralized asset management</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <h4 class="font-semibold text-green-900 mb-2">Business Benefits</h4>
+                                    <ul class="text-sm text-green-800 space-y-1">
+                                        <li>• 31% cost reduction</li>
+                                        <li>• Simplified procurement</li>
+                                        <li>• Standardized training</li>
+                                        <li>• Better volume discounts</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="financial-impact" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Financial Impact</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 mb-3">Cost Breakdown</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Current Annual Cost:</span>
+                                            <span class="font-medium">฿10.6M</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Proposed Annual Cost:</span>
+                                            <span class="font-medium">฿7.4M</span>
+                                        </div>
+                                        <div class="flex justify-between border-t pt-2">
+                                            <span class="text-green-600 font-medium">Annual Savings:</span>
+                                            <span class="font-bold text-green-600">฿3.2M</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Implementation Cost:</span>
+                                            <span class="font-medium">฿0.8M</span>
+                                        </div>
+                                        <div class="flex justify-between border-t pt-2">
+                                            <span class="text-blue-600 font-medium">ROI Payback Period:</span>
+                                            <span class="font-bold text-blue-600">3 months</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 mb-3">3-Year Projection</h3>
+                                    <div id="savings-chart" class="h-48"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="implementation-plan" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Implementation Plan</h2>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-900">Phase 1: Procurement & Setup (Month 1-2)</h4>
+                                            <p class="text-sm text-gray-600">Negotiate group licensing, setup admin console, create user accounts</p>
+                                        </div>
+                                        <span class="text-sm text-gray-500">8 weeks</span>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-900">Phase 2: Migration & Training (Month 3-4)</h4>
+                                            <p class="text-sm text-gray-600">User migration, asset transfer, comprehensive training program</p>
+                                        </div>
+                                        <span class="text-sm text-gray-500">8 weeks</span>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-900">Phase 3: Optimization & Support (Month 5-6)</h4>
+                                            <p class="text-sm text-gray-600">Workflow optimization, ongoing support, performance monitoring</p>
+                                        </div>
+                                        <span class="text-sm text-gray-500">8 weeks</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="risks-mitigation" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Risks & Mitigation</h2>
+                            <div class="space-y-4">
+                                <div class="border border-red-200 rounded-lg p-4">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-red-900">User Resistance to Change</h4>
+                                            <p class="text-sm text-red-700 mt-1">Some teams may resist switching from familiar tools</p>
+                                            <p class="text-sm text-gray-600 mt-2"><strong>Mitigation:</strong> Comprehensive training program, change management support, gradual transition timeline</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="border border-yellow-200 rounded-lg p-4">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-clock text-yellow-500 mt-1"></i>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-yellow-900">Temporary Productivity Impact</h4>
+                                            <p class="text-sm text-yellow-700 mt-1">Short-term productivity decrease during transition</p>
+                                            <p class="text-sm text-gray-600 mt-2"><strong>Mitigation:</strong> Phased rollout, dedicated support team, overlap period with existing tools</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="recommendation" class="mb-8">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Recommendation</h2>
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                                <p class="text-gray-700 leading-relaxed">
+                                    I recommend immediate approval of this consolidation initiative. The financial benefits are substantial, with a 31% cost reduction and 3-month payback period. The strategic advantages of standardized workflows and enhanced collaboration capabilities will position SCBX Group for improved operational efficiency and innovation capacity.
+                                </p>
+                                <div class="mt-4 pt-4 border-t border-green-200">
+                                    <p class="text-sm text-green-800 font-medium">Next Steps: Pending executive approval, we can begin procurement negotiations within 2 weeks and achieve full implementation within 6 months.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai-sidebar" class="space-y-6">
+                <div id="generation-info" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Generation Details</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Generated:</span>
+                            <span class="font-medium">Oct 21, 4:32 PM</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Confidence Score:</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 94%"></div>
+                                </div>
+                                <span class="font-medium text-green-600">94%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Word Count:</span>
+                            <span class="font-medium">1,247</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ai-suggestions" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Suggestions</h3>
+                    <div class="space-y-3">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-lightbulb text-blue-600 text-sm mt-1"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-blue-900">Add Market Research</p>
+                                    <p class="text-xs text-blue-700 mt-1">Consider adding industry benchmarks for design tool consolidation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-chart-line text-yellow-600 text-sm mt-1"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-yellow-900">Enhance Metrics</p>
+                                    <p class="text-xs text-yellow-700 mt-1">Include productivity metrics and collaboration KPIs</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-users text-green-600 text-sm mt-1"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-green-900">Stakeholder Input</p>
+                                    <p class="text-xs text-green-700 mt-1">Consider adding quotes from subsidiary design leads</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tone-selector" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Tone & Style</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="tone" value="professional" checked class="text-primary-600">
+                            <span class="text-sm font-medium">Professional</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="tone" value="concise" class="text-primary-600">
+                            <span class="text-sm font-medium">Concise</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="tone" value="detailed" class="text-primary-600">
+                            <span class="text-sm font-medium">Detailed</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="regenerate-sections" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Regenerate Sections</h3>
+                    <p class="text-sm text-gray-600 mb-4">Select sections you want to regenerate with different tone or content</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="rounded text-primary-600">
+                            <span class="text-sm font-medium">Executive Summary</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="rounded text-primary-600">
+                            <span class="text-sm font-medium">Financial Analysis</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generate-memo').addEventListener('click', function() {
+            console.log('Generate memo clicked');
+        });
+
+        document.querySelectorAll('input[name="tone"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                console.log('Tone changed:', this.value);
+            });
+        });
+    </script>
+</body>
+</html>

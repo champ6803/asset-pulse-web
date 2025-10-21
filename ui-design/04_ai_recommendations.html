@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">HR Management</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Assets</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Analytics</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-lg"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">John Manager</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-layout" class="flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
+        <div id="content-area" class="flex-1">
+            <div id="page-header" class="mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <h1 class="text-2xl font-bold text-gray-900">AI Recommendations</h1>
+                            <div class="ml-4 flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-robot mr-2"></i>
+                                95% Confidence
+                            </div>
+                        </div>
+                        <p class="text-gray-600">Sarah Johnson • Senior Software Engineer • Total: 89,500 THB/year</p>
+                    </div>
+                    <button id="back-btn" class="flex items-center text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back
+                    </button>
+                </div>
+
+                <div id="step-indicator" class="bg-white rounded-lg p-6 border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-8 h-8 bg-green-500 text-white rounded-full text-sm font-medium">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <span class="ml-3 text-sm font-medium text-gray-900">Basic Information</span>
+                        </div>
+                        <div class="flex-1 mx-4 h-px bg-primary-500"></div>
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-8 h-8 bg-primary-600 text-white rounded-full text-sm font-medium">
+                                2
+                            </div>
+                            <span class="ml-3 text-sm font-medium text-primary-600">AI Recommendations</span>
+                        </div>
+                        <div class="flex-1 mx-4 h-px bg-gray-200"></div>
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 text-gray-500 rounded-full text-sm font-medium">
+                                3
+                            </div>
+                            <span class="ml-3 text-sm text-gray-500">Review & Submit</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <span class="text-sm font-medium text-primary-600">Step 2 of 3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="filters-section" class="mb-6">
+                <div class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200">
+                    <div id="category-filters" class="flex items-center space-x-4">
+                        <span class="text-sm font-medium text-gray-700">Filter by:</span>
+                        <button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">All (10)</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">DevOps (3)</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">Collaboration (4)</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">Security (2)</button>
+                        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">Design (1)</button>
+                    </div>
+                    <div id="sort-dropdown" class="flex items-center">
+                        <span class="text-sm text-gray-600 mr-3">Sort by:</span>
+                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <option>Relevance Score</option>
+                            <option>Annual Cost</option>
+                            <option>Category</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recommendations-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div id="app-card-1" class="bg-white rounded-xl border-2 border-green-200 shadow-sm p-6 relative">
+                    <div class="absolute top-4 right-4 flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1" title="Why recommended?">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <img class="w-12 h-12 rounded-lg mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/277f8f76bd-257a533445770a73dcc4.png" alt="GitHub logo icon black and white" />
+                        <div>
+                            <h3 class="font-semibold text-gray-900">GitHub Enterprise</h3>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">DevOps</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Relevance Score</span>
+                            <span class="text-sm font-bold text-green-600">96%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 96%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-gray-900">12,000 THB/year</span>
+                        <span class="text-sm text-gray-500">Pro License</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 text-sm mt-0.5 mr-2"></i>
+                            <p class="text-sm text-blue-800">Job mentions version control, CI/CD pipelines, and code collaboration</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="app-card-2" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 relative">
+                    <div class="absolute top-4 right-4 flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1" title="Why recommended?">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <img class="w-12 h-12 rounded-lg mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/1e5cd8f91f-e9b28490eafa29adf1ae.png" alt="Slack logo colorful icon" />
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Slack Pro</h3>
+                            <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mt-1">Collaboration</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Relevance Score</span>
+                            <span class="text-sm font-bold text-blue-600">92%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-gray-900">8,500 THB/year</span>
+                        <span class="text-sm text-gray-500">Pro License</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 text-sm mt-0.5 mr-2"></i>
+                            <p class="text-sm text-blue-800">Engineering role requires team communication and file sharing</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="app-card-3" class="bg-white rounded-xl border-2 border-green-200 shadow-sm p-6 relative">
+                    <div class="absolute top-4 right-4 flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1" title="Why recommended?">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <img class="w-12 h-12 rounded-lg mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/67877ed0ea-a709dfbd19ebeaa7c501.png" alt="Docker logo blue whale icon" />
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Docker Pro</h3>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">DevOps</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Relevance Score</span>
+                            <span class="text-sm font-bold text-green-600">89%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 89%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-gray-900">7,200 THB/year</span>
+                        <span class="text-sm text-gray-500">Pro License</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 text-sm mt-0.5 mr-2"></i>
+                            <p class="text-sm text-blue-800">Containerization experience mentioned in requirements</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="app-card-4" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 relative">
+                    <div class="absolute top-4 right-4 flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1" title="Why recommended?">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <img class="w-12 h-12 rounded-lg mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/4c609dd678-521288e17bd8b9a2d8c2.png" alt="Jira Atlassian logo blue icon" />
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Jira Software</h3>
+                            <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mt-1">Collaboration</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Relevance Score</span>
+                            <span class="text-sm font-bold text-blue-600">87%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 87%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-gray-900">9,600 THB/year</span>
+                        <span class="text-sm text-gray-500">Standard</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 text-sm mt-0.5 mr-2"></i>
+                            <p class="text-sm text-blue-800">Agile development and project management required</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="app-card-5" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 relative">
+                    <div class="absolute top-4 right-4 flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1" title="Why recommended?">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <img class="w-12 h-12 rounded-lg mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8e44023fd2-1e77994bf64dc47ba48c.png" alt="VS Code Visual Studio Code Microsoft logo" />
+                        <div>
+                            <h3 class="font-semibold text-gray-900">VS Code Pro</h3>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">DevOps</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Relevance Score</span>
+                            <span class="text-sm font-bold text-blue-600">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-gray-900">4,800 THB/year</span>
+                        <span class="text-sm text-gray-500">Pro License</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 text-sm mt-0.5 mr-2"></i>
+                            <p class="text-sm text-blue-800">Code editor with advanced features for development</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="app-card-6" class="bg-white rounded-xl border-2 border-green-200 shadow-sm p-6 relative">
+                    <div class="absolute top-4 right-4 flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1" title="Why recommended?">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 p-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-start mb-4">
+                        <img class="w-12 h-12 rounded-lg mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/6402f764b7-9549051260de94dd2ab2.png" alt="Figma logo colorful design tool icon" />
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Figma Professional</h3>
+                            <span class="inline-block bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded-full mt-1">Design</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Relevance Score</span>
+                            <span class="text-sm font-bold text-green-600">78%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-gray-900">14,400 THB/year</span>
+                        <span class="text-sm text-gray-500">Professional</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-blue-600 text-sm mt-0.5 mr-2"></i>
+                            <p class="text-sm text-blue-800">Frontend role may require design collaboration tools</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="form-actions" class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <button id="back-step-btn" class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back
+                </button>
+                <div class="flex space-x-4">
+                    <button id="save-draft-btn" class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                        Save Draft
+                    </button>
+                    <button id="next-step-btn" class="px-8 py-3 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+                        Review & Submit
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="sidebar" class="w-80">
+            <div id="summary-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Selection Summary</h3>
+                
+                <div id="summary-stats" class="space-y-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Selected Apps</span>
+                        <span class="font-semibold text-gray-900">4 of 10</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Total Cost</span>
+                        <span class="font-semibold text-gray-900">42,400 THB/year</span>
+                    </div>
+                </div>
+
+                <div id="budget-section" class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Budget Limit</span>
+                        <span class="text-sm text-gray-600">50,000 THB</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-green-500 h-3 rounded-full" style="width: 85%"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-gray-500">85% used</span>
+                        <span class="text-xs font-medium text-green-600">7,600 THB remaining</span>
+                    </div>
+                </div>
+
+                <div id="approval-info" class="p-4 bg-gray-50 rounded-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-user-check text-gray-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700">Approver</span>
+                    </div>
+                    <p class="text-sm text-gray-900 mb-3">David Chen (Engineering Director)</p>
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-gray-500 mr-2"></i>
+                        <span class="text-xs text-gray-600">Est. approval time: 2-3 business days</span>
+                    </div>
+                </div>
+
+                <div id="selected-apps" class="space-y-3">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Selected Applications</h4>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <img class="w-8 h-8 rounded mr-3" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/f52fe96d8f-5e31fa67071a82d44a68.png" alt="GitHub logo small icon" />
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">GitHub Enterprise</p>
+                                <p class="text-xs text-gray-600">12,000 THB/year</p>
+                            </div>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700 p-1">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <img class="w-8 h-8 rounded mr-3" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/9cdde9996c-8ae84e1a96c9a8001e1a.png" alt="Docker logo small icon" />
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Docker Pro</p>
+                                <p class="text-xs text-gray-600">7,200 THB/year</p>
+                            </div>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700 p-1">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <img class="w-8 h-8 rounded mr-3" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/74f7add7a3-953cb7b65a4d07fd626a.png" alt="Figma logo small icon" />
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Figma Business</p>
+                                <p class="text-xs text-gray-600">14,400 THB/year</p>
+                            </div>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700 p-1">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submit-request').addEventListener('click', function() {
+            console.log('Request submitted');
+        });
+
+        document.querySelectorAll('.recommended-software button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const software = this.closest('.recommended-software').querySelector('p').textContent;
+                console.log('Software action:', software);
+            });
+        });
+    </script>
+</body>
+</html>

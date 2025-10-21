@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/column.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Recommendations</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">My Licenses</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Requests</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">Sarah Chen</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">My Licenses</h1>
+                    <p class="text-gray-600 mt-2">Manage and track all your active and expired software licenses</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option>All Categories</option>
+                        <option>Development Tools</option>
+                        <option>Design Software</option>
+                        <option>Analytics</option>
+                        <option>Communication</option>
+                    </select>
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Export List
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quick-stats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div id="total-active-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Active Licenses</p>
+                        <p class="text-3xl font-bold text-green-600 mt-2">12</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-check-circle text-green-500 text-sm mr-1"></i>
+                            <span class="text-sm text-green-600">All current</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="annual-cost-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Annual Cost</p>
+                        <p class="text-3xl font-bold text-blue-600 mt-2">฿48,500</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-chart-line text-blue-500 text-sm mr-1"></i>
+                            <span class="text-sm text-blue-600">Per year</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="most-used-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Most Used App</p>
+                        <div class="flex items-center mt-2">
+                            <div class="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fab fa-figma text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Figma</p>
+                                <p class="text-sm text-gray-500">Daily usage</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="expiring-soon-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Expiring in 30 Days</p>
+                        <p class="text-3xl font-bold text-amber-600 mt-2">2</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-exclamation-triangle text-amber-500 text-sm mr-1"></i>
+                            <span class="text-sm text-amber-600">Needs attention</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-amber-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="filters-section" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div id="filter-tabs" class="flex items-center space-x-1">
+                    <button class="bg-primary-100 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium">All</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">Active</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">Expiring Soon</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">Expired</button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search licenses..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 p-2">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="licenses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div id="license-card-1" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fab fa-figma text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Figma</h3>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Professional
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            Active
+                        </span>
+                        <div class="relative">
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Assigned:</span>
+                        <span class="text-gray-900">Mar 15, 2024</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Expires:</span>
+                        <span class="text-gray-900">Mar 15, 2025</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Last Used:</span>
+                        <span class="text-gray-900">2 hours ago</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-500">Usage Frequency</span>
+                        <span class="text-green-600 font-medium">High</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-bold text-gray-900">฿4,800/year</span>
+                    <div class="flex space-x-2">
+                        <button class="text-primary-600 hover:text-primary-700 text-sm">View Usage</button>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="license-card-2" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fab fa-slack text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Slack</h3>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Pro
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                            <div class="w-2 h-2 bg-amber-500 rounded-full mr-1"></div>
+                            Expiring
+                        </span>
+                        <div class="relative">
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Assigned:</span>
+                        <span class="text-gray-900">Jan 10, 2024</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Expires:</span>
+                        <span class="text-amber-600 font-medium">Jan 10, 2025 (18 days)</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Last Used:</span>
+                        <span class="text-gray-900">1 day ago</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-500">Usage Frequency</span>
+                        <span class="text-blue-600 font-medium">Medium</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-bold text-gray-900">฿3,200/year</span>
+                    <div class="flex space-x-2">
+                        <button class="text-amber-600 hover:text-amber-700 text-sm">Request Renewal</button>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="license-card-3" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fab fa-github text-indigo-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">GitHub</h3>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                Team
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            Active
+                        </span>
+                        <div class="relative">
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Assigned:</span>
+                        <span class="text-gray-900">Feb 20, 2024</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Expires:</span>
+                        <span class="text-gray-900">Feb 20, 2025</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Last Used:</span>
+                        <span class="text-gray-900">3 hours ago</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-500">Usage Frequency</span>
+                        <span class="text-green-600 font-medium">High</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 90%"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-bold text-gray-900">฿8,400/year</span>
+                    <div class="flex space-x-2">
+                        <button class="text-primary-600 hover:text-primary-700 text-sm">View Usage</button>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="license-card-4" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fab fa-adobe text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Adobe Creative Cloud</h3>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                All Apps
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <div class="w-2 h-2 bg-gray-500 rounded-full mr-1"></div>
+                            Expired
+                        </span>
+                        <div class="relative">
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Assigned:</span>
+                        <span class="text-gray-900">Nov 5, 2023</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Expired:</span>
+                        <span class="text-red-600 font-medium">Nov 5, 2024 (45 days ago)</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Last Used:</span>
+                        <span class="text-gray-900">50 days ago</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-500">Usage Frequency</span>
+                        <span class="text-gray-600 font-medium">Low</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-gray-400 h-2 rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-bold text-gray-500">฿12,000/year</span>
+                    <div class="flex space-x-2">
+                        <button class="text-primary-600 hover:text-primary-700 text-sm">Request Renewal</button>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="license-card-5" class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-table text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Tableau</h3>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Creator
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            Active
+                        </span>
+                        <div class="relative">
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Assigned:</span>
+                        <span class="text-gray-900">Apr 8, 2024</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Expires:</span>
+                        <span class="text-gray-900">Apr 8, 2025</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Last Used:</span>
+                        <span class="text-gray-900">5 days ago</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-500">Usage Frequency</span>
+                        <span class="text-yellow-600 font-medium">Medium</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-bold text-gray-900">฿19,800/year</span>
+                    <div class="flex space-x-2">
+                        <button class="text-primary-600 hover:text-primary-700 text-sm">View Usage</button>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="empty-state-card" class="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl border-2 border-dashed border-primary-200 p-8 flex flex-col items-center justify-center text-center">
+                <div class="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-plus text-primary-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Request Your First License</h3>
+                <p class="text-gray-600 mb-4">Need additional software? Request a new license to get started</p>
+                <button class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+                    Request New License
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            console.log('Search:', e.target.value);
+        });
+
+        document.getElementById('status-filter').addEventListener('change', function(e) {
+            console.log('Filter changed:', e.target.value);
+        });
+
+        document.querySelectorAll('.license-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('License card clicked');
+            });
+        });
+    </script>
+</body>
+</html>
