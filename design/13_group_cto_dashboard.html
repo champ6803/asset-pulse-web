@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/treemap.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Consolidation</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Similar Software</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Analytics</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Memos</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">8</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">David Kim</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Group CTO Dashboard</h1>
+                    <p class="text-gray-600 mt-2">Optimize software portfolios and identify consolidation opportunities across all subsidiaries</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white border border-gray-300 rounded-lg p-2 flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Scope:</span>
+                        <label class="flex items-center">
+                            <input type="radio" name="scope" value="subsidiary" class="mr-1">
+                            <span class="text-sm">Subsidiary</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="scope" value="group" checked class="mr-1">
+                            <span class="text-sm">Group</span>
+                        </label>
+                    </div>
+                    <select class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option>All Categories</option>
+                        <option>Development Tools</option>
+                        <option>Design Software</option>
+                        <option>Analytics</option>
+                        <option>Communication</option>
+                    </select>
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="portfolio-overview" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div id="subsidiaries-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Subsidiaries</p>
+                        <p class="text-4xl font-bold text-blue-600 mt-2">25</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-building text-blue-500 text-sm mr-1"></i>
+                            <span class="text-sm text-blue-600">SCBX Group</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-sitemap text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="applications-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Applications</p>
+                        <p class="text-4xl font-bold text-purple-600 mt-2">87</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-arrow-up text-green-500 text-sm mr-1"></i>
+                            <span class="text-sm text-green-600">+12 this quarter</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-layer-group text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="annual-cost-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Annual Cost</p>
+                        <p class="text-4xl font-bold text-red-600 mt-2">฿45M</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-chart-line text-red-500 text-sm mr-1"></i>
+                            <span class="text-sm text-red-600">+8% vs last year</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="consolidation-opportunities-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Consolidation Opportunities</p>
+                        <p class="text-4xl font-bold text-green-600 mt-2">18</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-piggy-bank text-green-500 text-sm mr-1"></i>
+                            <span class="text-sm text-green-600">฿12.5M potential savings</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-compress-arrows-alt text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div id="similar-software-detection" class="lg:col-span-2">
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Similar Software Detection</h2>
+                        <button class="text-primary-600 hover:text-primary-700 text-sm font-medium">View All Groups</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div id="design-tools-group" class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-palette text-orange-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Design Tools</h4>
+                                        <p class="text-sm text-gray-500">3 similar applications across 8 subsidiaries</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                                        92% Similar
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Adobe Creative Cloud</h5>
+                                    <p class="text-xs text-gray-500">5 subsidiaries • ฿8.2M/year</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Figma Enterprise</h5>
+                                    <p class="text-xs text-gray-500">2 subsidiaries • ฿1.8M/year</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Sketch Business</h5>
+                                    <p class="text-xs text-gray-500">1 subsidiary • ฿0.6M/year</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-green-600">Potential Savings: ฿3.2M/year</span>
+                                <button class="bg-primary-100 text-primary-700 px-4 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="analytics-tools-group" class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-chart-bar text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Analytics Platforms</h4>
+                                        <p class="text-sm text-gray-500">4 similar applications across 12 subsidiaries</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                        87% Similar
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 gap-3 mb-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Tableau</h5>
+                                    <p class="text-xs text-gray-500">6 subs • ฿5.4M</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Power BI</h5>
+                                    <p class="text-xs text-gray-500">4 subs • ฿2.1M</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Looker</h5>
+                                    <p class="text-xs text-gray-500">1 sub • ฿1.2M</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Qlik Sense</h5>
+                                    <p class="text-xs text-gray-500">1 sub • ฿0.8M</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-green-600">Potential Savings: ฿2.8M/year</span>
+                                <button class="bg-primary-100 text-primary-700 px-4 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="communication-tools-group" class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-comments text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Communication Tools</h4>
+                                        <p class="text-sm text-gray-500">2 similar applications across 15 subsidiaries</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        95% Similar
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Slack Enterprise</h5>
+                                    <p class="text-xs text-gray-500">12 subsidiaries • ฿4.8M/year</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <h5 class="font-medium text-gray-900 text-sm">Microsoft Teams</h5>
+                                    <p class="text-xs text-gray-500">3 subsidiaries • ฿1.2M/year</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-green-600">Potential Savings: ฿1.8M/year</span>
+                                <button class="bg-primary-100 text-primary-700 px-4 py-2 rounded-lg text-sm hover:bg-primary-200 transition-colors">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="consolidation-list" class="space-y-6">
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Top Consolidation Opportunities</h3>
+                        <button class="text-primary-600 hover:text-primary-700 text-sm font-medium">View All</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="border border-gray-100 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900">Development Tools</h4>
+                                <span class="text-sm font-bold text-green-600">35% savings</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-2">
+                                <span>8 subsidiaries</span>
+                                <span>245 users</span>
+                                <span>฿8.2M current cost</span>
+                                <span>฿2.9M savings</span>
+                            </div>
+                            <button class="w-full bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                Generate Memo
+                            </button>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900">Project Management</h4>
+                                <span class="text-sm font-bold text-green-600">28% savings</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-2">
+                                <span>6 subsidiaries</span>
+                                <span>156 users</span>
+                                <span>฿4.8M current cost</span>
+                                <span>฿1.3M savings</span>
+                            </div>
+                            <button class="w-full bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                Generate Memo
+                            </button>
+                        </div>
+
+                        <div class="border border-gray-100 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900">Cloud Storage</h4>
+                                <span class="text-sm font-bold text-green-600">22% savings</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-2">
+                                <span>12 subsidiaries</span>
+                                <span>892 users</span>
+                                <span>฿3.2M current cost</span>
+                                <span>฿0.7M savings</span>
+                            </div>
+                            <button class="w-full bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                Generate Memo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quick-access" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Access</h3>
+                    <div class="space-y-3">
+                        <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-file-alt text-blue-600"></i>
+                                <span class="text-sm font-medium">Recent Memos</span>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">3</span>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-chart-line text-green-600"></i>
+                                <span class="text-sm font-medium">Strategic Reports</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">5</span>
+                        </button>
+                        <button class="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-cog text-purple-600"></i>
+                                <span class="text-sm font-medium">Settings</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="strategic-analytics" class="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Strategic Analytics</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div id="cost-distribution">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Cost Distribution by Subsidiary</h3>
+                    <div id="treemap-chart" class="h-64"></div>
+                </div>
+                
+                <div id="portfolio-overlap">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Software Portfolio Overlap</h3>
+                    <div id="overlap-chart" class="h-64"></div>
+                </div>
+                
+                <div id="savings-trend">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Savings Trend Over Time</h3>
+                    <div id="savings-line-chart" class="h-64"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Highcharts.chart('treemap-chart', {
+                chart: {
+                    type: 'treemap',
+                    backgroundColor: 'transparent'
+                },
+                title: { text: null },
+                credits: { enabled: false },
+                colorAxis: {
+                    minColor: '#e3f2fd',
+                    maxColor: '#1976d2'
+                },
+                series: [{
+                    type: 'treemap',
+                    layoutAlgorithm: 'squarified',
+                    data: [{
+                        name: 'SCBX Bank',
+                        value: 15600000,
+                        colorValue: 1
+                    }, {
+                        name: 'SCB Tech',
+                        value: 8900000,
+                        colorValue: 2
+                    }, {
+                        name: 'SCB Securities',
+                        value: 6200000,
+                        colorValue: 3
+                    }, {
+                        name: 'SCB Asset',
+                        value: 4800000,
+                        colorValue: 4
+                    }, {
+                        name: 'Others',
+                        value: 9500000,
+                        colorValue: 5
+                    }]
+                }]
+            });
+
+            Highcharts.chart('overlap-chart', {
+                chart: {
+                    type: 'pie',
+                    backgroundColor: 'transparent'
+                },
+                title: { text: null },
+                credits: { enabled: false },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f}%'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Overlap',
+                    colorByPoint: true,
+                    data: [{
+                        name: 'Unique',
+                        y: 45,
+                        color: '#3b82f6'
+                    }, {
+                        name: 'Overlapping',
+                        y: 35,
+                        color: '#ef4444'
+                    }, {
+                        name: 'Consolidatable',
+                        y: 20,
+                        color: '#10b981'
+                    }]
+                }]
+            });
+
+            Highcharts.chart('savings-line-chart', {
+                chart: {
+                    type: 'line',
+                    backgroundColor: 'transparent'
+                },
+                title: { text: null },
+                credits: { enabled: false },
+                xAxis: {
+                    categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    lineColor: '#e5e7eb'
+                },
+                yAxis: {
+                    title: { text: 'Savings (Million THB)' },
+                    gridLineColor: '#f3f4f6'
+                },
+                legend: { enabled: false },
+                plotOptions: {
+                    line: {
+                        dataLabels: { enabled: true },
+                        enableMouseTracking: true
+                    }
+                },
+                series: [{
+                    name: 'Cumulative Savings',
+                    data: [2.1, 4.8, 8.2, 12.5],
+                    color: '#10b981'
+                }]
+            });
+        });
+    </script>
+</body>
+</html>

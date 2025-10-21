@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">HR Management</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Assets</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Analytics</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-lg"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">John Manager</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-layout" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="success-hero" class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6">
+                <i class="fas fa-check text-green-600 text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Request Submitted!</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Your software request has been successfully submitted and is now being reviewed by your manager.</p>
+        </div>
+
+        <div id="confirmation-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div id="main-confirmation" class="lg:col-span-2 space-y-6">
+                <div id="request-details-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Request Details</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">Request ID:</span>
+                            <span id="request-id" class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded">REQ-2024-1205-001</span>
+                            <button id="copy-id-btn" class="text-gray-400 hover:text-primary-600 p-1" title="Copy Request ID">
+                                <i class="fas fa-copy text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="employee-summary" class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">Employee Name</label>
+                            <p class="text-gray-900 mt-1">Sarah Johnson</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">Department</label>
+                            <p class="text-gray-900 mt-1">Engineering</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">Number of Applications</label>
+                            <p class="text-gray-900 mt-1">4 software packages</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">Total Annual Cost</label>
+                            <p class="text-gray-900 mt-1 font-semibold">42,100 THB</p>
+                        </div>
+                    </div>
+
+                    <div id="status-section" class="border-t border-gray-200 pt-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Current Status</span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-clock mr-2 text-xs"></i>
+                                Pending Approval
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="next-steps-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Next Steps</h3>
+                    <div id="timeline-steps" class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex items-center justify-center w-8 h-8 bg-primary-600 text-white rounded-full text-sm font-medium mr-4 mt-1">
+                                1
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 mb-1">Manager Review</h4>
+                                <p class="text-sm text-gray-600 mb-2">David Chen (Engineering Director) will review your request</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-calendar-alt mr-2"></i>
+                                    <span>Expected by: December 8, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-600 rounded-full text-sm font-medium mr-4 mt-1">
+                                2
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 mb-1">Email Notification</h4>
+                                <p class="text-sm text-gray-600">You'll receive an email notification once the decision is made</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-600 rounded-full text-sm font-medium mr-4 mt-1">
+                                3
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 mb-1">Auto-Assignment</h4>
+                                <p class="text-sm text-gray-600">If approved, software licenses will be automatically assigned to your account</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="action-sidebar" class="lg:col-span-1">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 sticky top-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                    
+                    <div id="action-buttons" class="space-y-4">
+                        <button id="view-details-btn" class="w-full flex items-center justify-center px-4 py-3 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>
+                            View Request Details
+                        </button>
+
+                        <button id="create-another-btn" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Create Another Request
+                        </button>
+
+                        <button id="back-dashboard-btn" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-home mr-2"></i>
+                            Back to Dashboard
+                        </button>
+                    </div>
+
+                    <div id="help-section" class="mt-8 pt-6 border-t border-gray-200">
+                        <h4 class="font-medium text-gray-900 mb-3">Need Help?</h4>
+                        <div class="space-y-3 text-sm">
+                            <span class="flex items-center text-primary-600 hover:text-primary-700 cursor-pointer">
+                                <i class="fas fa-question-circle mr-2"></i>
+                                Request Status Guide
+                            </span>
+                            <span class="flex items-center text-primary-600 hover:text-primary-700 cursor-pointer">
+                                <i class="fas fa-headset mr-2"></i>
+                                Contact IT Support
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="additional-info" class="mt-12 bg-blue-50 rounded-xl p-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-600 text-lg mt-1"></i>
+                </div>
+                <div class="ml-4">
+                    <h4 class="font-medium text-blue-900 mb-2">What happens next?</h4>
+                    <p class="text-sm text-blue-800 mb-3">Your request will be reviewed based on budget availability, business justification, and compliance requirements. The approval process typically takes 2-3 business days.</p>
+                    <div class="text-sm text-blue-700">
+                        <strong>Note:</strong> You can track the status of your request in the "My Requests" section of your dashboard.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('copy-id-btn').addEventListener('click', function() {
+            const requestId = document.getElementById('request-id').textContent;
+            navigator.clipboard.writeText(requestId).then(function() {
+                const btn = document.getElementById('copy-id-btn');
+                const originalIcon = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check text-sm text-green-600"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                }, 2000);
+            });
+        });
+
+        document.getElementById('view-details-btn').addEventListener('click', function() {
+            window.location.href = '#request-details';
+        });
+
+        document.getElementById('create-another-btn').addEventListener('click', function() {
+            window.location.href = '#new-request';
+        });
+
+        document.getElementById('back-dashboard-btn').addEventListener('click', function() {
+            window.location.href = '#dashboard';
+        });
+    </script>
+</body>
+</html>

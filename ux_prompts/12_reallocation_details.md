@@ -1,0 +1,4 @@
+# Screen 12: Reallocation Details
+
+Detailed reallocation view with two-column layout. Left column 'Source (Inactive Users)' showing department name, total inactive licenses, and list of users with checkboxes. Each user entry displays: name, last active date (X days ago), job title, usage hours in last 90 days. Select all/deselect all buttons. Right column 'Target (Pending Requests)' showing department name, total pending requests, and list of requesting users with arrow indicators. Each request shows: name, requested date, job title, justification text, priority level. Middle shows mapping arrows from source to target. Bottom section 'Impact Analysis' displaying action summary (transfer, revoke, keep counts), financial impact breakdown, and timeline with 4 steps. Configuration checkboxes for notifications and auto-assignment. Radio buttons for action types. Buttons: Cancel, Save Draft, Schedule Execution, Execute Now.
+

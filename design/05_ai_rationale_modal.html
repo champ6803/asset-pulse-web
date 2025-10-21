@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="rationale-modal" class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 relative transform">
+            <button id="close-modal-btn" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <div id="modal-content" class="p-8">
+                <div id="app-header" class="flex items-center mb-8">
+                    <img class="w-16 h-16 rounded-xl mr-4" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/277f8f76bd-257a533445770a73dcc4.png" alt="GitHub Enterprise logo" />
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">GitHub Enterprise</h2>
+                        <div class="flex items-center mt-1">
+                            <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mr-3">DevOps</span>
+                            <span class="text-sm font-medium text-green-600">96% Match</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="why-recommended-section" class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-lightbulb text-blue-600 mr-2"></i>
+                        Why Recommended
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                            <p class="text-gray-700">Job description mentions <span class="font-semibold bg-yellow-100 px-1 rounded">version control</span>, <span class="font-semibold bg-yellow-100 px-1 rounded">CI/CD pipelines</span>, and <span class="font-semibold bg-yellow-100 px-1 rounded">code collaboration</span></p>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                            <p class="text-gray-700"><span class="font-semibold text-green-600">95% of Senior Engineers</span> in similar roles use this tool</p>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                            <p class="text-gray-700">Essential for managing code repositories and enabling team collaboration on software projects</p>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                            <div class="flex items-center">
+                                <p class="text-gray-700">Engineering Department Standard</p>
+                                <div class="ml-2 flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                                    <i class="fas fa-shield-alt mr-1"></i>
+                                    Required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="recommended-tier-section" class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                        Recommended Tier
+                    </h3>
+                    <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 border border-blue-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-xl font-bold text-gray-900">Enterprise Pro</h4>
+                            <span class="text-2xl font-bold text-green-600">12,000 THB/year</span>
+                        </div>
+                        <p class="text-gray-700 mb-4">Includes advanced security features, unlimited private repositories, and enterprise-grade support required for senior engineering roles.</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Advanced Security
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Unlimited Repos
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Priority Support
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Team Analytics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="confidence-metrics" class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Confidence Breakdown</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Job Requirements Match</span>
+                            <div class="flex items-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 98%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">98%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Peer Usage Similarity</span>
+                            <div class="flex items-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">95%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Department Standard</span>
+                            <div class="flex items-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 92%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">92%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modal-actions" class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <button id="learn-more-btn" class="text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        Learn More About GitHub Enterprise
+                    </button>
+                    <div class="flex space-x-3">
+                        <button id="remove-app-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                            <i class="fas fa-times mr-2"></i>
+                            Remove
+                        </button>
+                        <button id="keep-app-btn" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                            <i class="fas fa-check mr-2"></i>
+                            Keep Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('close-modal-btn').addEventListener('click', function() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        });
+
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        document.getElementById('remove-app-btn').addEventListener('click', function() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        });
+
+        document.getElementById('keep-app-btn').addEventListener('click', function() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

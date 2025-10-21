@@ -1,0 +1,4 @@
+# Screen 11: Seat Optimization Dashboard
+
+Seat optimization overview with three summary cards: Revoke (license count and monthly savings in red), Reallocate (license count and cost avoided in blue), Downgrade (license count and savings in amber). Tab navigation: All, Revoke, Reallocate, Downgrade with counts. Filter dropdowns for company, department, app, and sort options. Optimization opportunity cards showing: action type icon, priority stars (High/Medium/Low), application name with icon, source department/subsidiary with inactive count, target department/subsidiary with pending request count (for reallocation), AI rationale box with robot icon, impact metrics (cost avoided, savings, requests fulfilled), and action buttons (View Details, Approve, Dismiss, Save). Bulk selection checkbox. Export and apply selected buttons.
+

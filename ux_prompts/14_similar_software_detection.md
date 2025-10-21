@@ -1,0 +1,4 @@
+# Screen 14: Similar Software Detection
+
+Cross-subsidiary software matching screen showing scope selector (Group - All 25 subsidiaries), category filter dropdown, and similarity threshold slider (>80%). Summary banner displaying number of similar software groups found and total potential savings. Each group card shows: group number and category name, similarity percentage with visual indicator, 2-4 app cards within showing app icon, name, subsidiary, user count, annual cost. AI analysis box with robot icon explaining feature overlap and consolidation recommendation. Common features section with checkmark list showing matched capabilities. Total summary: number of tools, total users, total current cost. Consolidation potential displayed prominently in green. Action buttons: View Consolidation Plan, Dismiss, Export. Sort by savings high to low.
+

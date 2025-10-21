@@ -1,0 +1,4 @@
+# Screen 03b: Review Summary (Step 3 of 3)
+
+Final review screen showing 'Step 3 of 3: Review & Submit'. Large summary card displaying employee information section with name, job title, department, and start date. Selected software packages section showing list of applications with icons, tiers, and individual costs. Total summary displaying: number of applications selected, total annual cost prominently in large text, budget comparison with progress bar showing used vs remaining budget. Approval workflow preview showing approver name with avatar, role, and estimated approval time (2-3 days). Terms and conditions checkbox with link to policy. Comment box for additional notes to approver (optional). Two large action buttons at bottom: Back to Edit (secondary) and Confirm & Submit (primary green button). Clean review layout with all key information visible at a glance. Include edit pencil icons next to each section for quick modifications.
+

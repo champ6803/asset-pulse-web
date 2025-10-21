@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Team</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Templates</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Approvals</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Optimization</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">7</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">Michael Torres</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Seat Optimization</h1>
+                    <p class="text-gray-600 mt-2">AI-powered license optimization recommendations</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Export
+                    </button>
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                        <i class="fas fa-check mr-2"></i>
+                        Apply Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div id="revoke-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Revoke</p>
+                        <p class="text-3xl font-bold text-red-600 mt-2">24</p>
+                        <p class="text-sm text-red-600 mt-1">฿85,200/month savings</p>
+                    </div>
+                    <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reallocate-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Reallocate</p>
+                        <p class="text-3xl font-bold text-blue-600 mt-2">18</p>
+                        <p class="text-sm text-blue-600 mt-1">฿127,400 cost avoided</p>
+                    </div>
+                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="downgrade-card" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Downgrade</p>
+                        <p class="text-3xl font-bold text-amber-600 mt-2">12</p>
+                        <p class="text-sm text-amber-600 mt-1">฿42,800/month savings</p>
+                    </div>
+                    <div class="h-12 w-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-down text-amber-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="optimization-content" class="bg-white rounded-xl border border-gray-200">
+            <div id="tab-navigation" class="border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex space-x-6">
+                        <button class="text-primary-600 border-b-2 border-primary-600 pb-2 text-sm font-medium">
+                            All <span class="ml-1 bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs">54</span>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700 pb-2 text-sm font-medium">
+                            Revoke <span class="ml-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">24</span>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700 pb-2 text-sm font-medium">
+                            Reallocate <span class="ml-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">18</span>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700 pb-2 text-sm font-medium">
+                            Downgrade <span class="ml-1 bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">12</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <select class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option>All Companies</option>
+                            <option>SCBX</option>
+                            <option>SCB Tech</option>
+                        </select>
+                        <select class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option>All Departments</option>
+                            <option>Engineering</option>
+                            <option>Marketing</option>
+                        </select>
+                        <select class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option>All Apps</option>
+                            <option>Adobe Creative</option>
+                            <option>Microsoft 365</option>
+                        </select>
+                        <select class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option>Sort by Priority</option>
+                            <option>Sort by Savings</option>
+                            <option>Sort by Date</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bulk-actions" class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <input type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <span class="text-sm text-gray-600">Select All (54 items)</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Total potential savings: <span class="font-semibold text-green-600">฿255,400/month</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="optimization-cards" class="p-6 space-y-4">
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-exchange-alt text-blue-600"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Reallocation</span>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                                        <span class="text-xs text-gray-600 ml-1">High Priority</span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div>
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i class="fas fa-chart-bar text-purple-600"></i>
+                                            <h4 class="font-semibold text-gray-900">Tableau Pro</h4>
+                                        </div>
+                                        <div class="text-sm text-gray-600 space-y-1">
+                                            <div class="flex items-center justify-between">
+                                                <span>From: Marketing</span>
+                                                <span class="text-red-600 font-medium">7 inactive</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span>To: Analytics</span>
+                                                <span class="text-blue-600 font-medium">2 pending requests</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="flex items-start space-x-2">
+                                            <i class="fas fa-robot text-primary-600 mt-1"></i>
+                                            <div>
+                                                <h5 class="font-medium text-gray-900 text-sm mb-1">AI Rationale</h5>
+                                                <p class="text-xs text-gray-600">Marketing team shows 0% usage for 90 days while Analytics has 2 pending license requests for data visualization projects.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-sm mb-2">Impact Metrics</h5>
+                                        <div class="text-sm space-y-1">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Cost Avoided:</span>
+                                                <span class="font-medium text-green-600">฿29,400/month</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Requests Fulfilled:</span>
+                                                <span class="font-medium text-blue-600">2 users</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Efficiency Gain:</span>
+                                                <span class="font-medium text-purple-600">85%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 ml-4">
+                            <button class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                                View Details
+                            </button>
+                            <button class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                Approve
+                            </button>
+                            <button class="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm hover:bg-red-200 transition-colors">
+                                Dismiss
+                            </button>
+                            <button class="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="h-8 w-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-times-circle text-red-600"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">Revoke</span>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                                        <i class="far fa-star text-gray-300 text-xs"></i>
+                                        <span class="text-xs text-gray-600 ml-1">Medium Priority</span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div>
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i class="fab fa-adobe text-red-600"></i>
+                                            <h4 class="font-semibold text-gray-900">Adobe Creative Cloud</h4>
+                                        </div>
+                                        <div class="text-sm text-gray-600 space-y-1">
+                                            <div class="flex items-center justify-between">
+                                                <span>Department: Finance</span>
+                                                <span class="text-red-600 font-medium">12 inactive</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500">Last used: 180+ days ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="flex items-start space-x-2">
+                                            <i class="fas fa-robot text-primary-600 mt-1"></i>
+                                            <div>
+                                                <h5 class="font-medium text-gray-900 text-sm mb-1">AI Rationale</h5>
+                                                <p class="text-xs text-gray-600">Finance team licenses show zero usage for 6 months. No creative design tasks identified in department workflow analysis.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-sm mb-2">Impact Metrics</h5>
+                                        <div class="text-sm space-y-1">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Monthly Savings:</span>
+                                                <span class="font-medium text-green-600">฿28,800</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Annual Savings:</span>
+                                                <span class="font-medium text-green-600">฿345,600</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Risk Level:</span>
+                                                <span class="font-medium text-green-600">Low</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 ml-4">
+                            <button class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                                View Details
+                            </button>
+                            <button class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                Approve
+                            </button>
+                            <button class="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm hover:bg-red-200 transition-colors">
+                                Dismiss
+                            </button>
+                            <button class="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="h-8 w-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-arrow-down text-amber-600"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-amber-600 bg-amber-100 px-2 py-1 rounded-full">Downgrade</span>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                                        <i class="far fa-star text-gray-300 text-xs"></i>
+                                        <i class="far fa-star text-gray-300 text-xs"></i>
+                                        <span class="text-xs text-gray-600 ml-1">Low Priority</span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div>
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i class="fab fa-microsoft text-blue-600"></i>
+                                            <h4 class="font-semibold text-gray-900">Microsoft 365 E5</h4>
+                                        </div>
+                                        <div class="text-sm text-gray-600 space-y-1">
+                                            <div class="flex items-center justify-between">
+                                                <span>Department: HR</span>
+                                                <span class="text-amber-600 font-medium">8 users</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500">Suggested: Downgrade to E3</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="flex items-start space-x-2">
+                                            <i class="fas fa-robot text-primary-600 mt-1"></i>
+                                            <div>
+                                                <h5 class="font-medium text-gray-900 text-sm mb-1">AI Rationale</h5>
+                                                <p class="text-xs text-gray-600">HR team uses only 35% of E5 features. Advanced compliance and analytics features unused for 90+ days.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-sm mb-2">Impact Metrics</h5>
+                                        <div class="text-sm space-y-1">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Monthly Savings:</span>
+                                                <span class="font-medium text-green-600">฿12,800</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Feature Usage:</span>
+                                                <span class="font-medium text-amber-600">35%</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Risk Level:</span>
+                                                <span class="font-medium text-green-600">Very Low</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 ml-4">
+                            <button class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                                View Details
+                            </button>
+                            <button class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">
+                                Approve
+                            </button>
+                            <button class="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm hover:bg-red-200 transition-colors">
+                                Dismiss
+                            </button>
+                            <button class="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm hover:bg-blue-200 transition-colors">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pagination" class="px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">54</span> results
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Previous
+                        </button>
+                        <button class="px-3 py-2 text-sm bg-primary-600 text-white rounded-lg">1</button>
+                        <button class="px-3 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                        <button class="px-3 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                        <button class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('#tab-navigation button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => {
+                        t.className = 'text-gray-500 hover:text-gray-700 pb-2 text-sm font-medium';
+                    });
+                    this.className = 'text-primary-600 border-b-2 border-primary-600 pb-2 text-sm font-medium';
+                });
+            });
+
+            const selectAllCheckbox = document.querySelector('#bulk-actions input[type="checkbox"]');
+            const itemCheckboxes = document.querySelectorAll('#optimization-cards input[type="checkbox"]');
+            
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+
+            const actionButtons =

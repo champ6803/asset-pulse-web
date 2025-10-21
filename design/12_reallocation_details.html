@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Team</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Templates</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Approvals</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Requests</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">7</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">Michael Torres</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="breadcrumb-section" class="mb-6">
+            <nav class="flex items-center space-x-2 text-sm text-gray-500">
+                <span class="hover:text-gray-700 cursor-pointer">Dashboard</span>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="hover:text-gray-700 cursor-pointer">Seat Optimization</span>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-gray-900 font-medium">Reallocation Details</span>
+            </nav>
+        </div>
+
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Tableau Pro Reallocation</h1>
+                    <p class="text-gray-600 mt-2">Optimize license distribution between Marketing and Analytics departments</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back
+                    </button>
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        <i class="fas fa-bookmark mr-2"></i>
+                        Save Draft
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="reallocation-content" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div id="source-section" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-users text-red-500 mr-3"></i>
+                            Source (Inactive Users)
+                        </h2>
+                        <p class="text-gray-600 mt-1">Marketing Department</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Total Inactive Licenses</p>
+                        <p class="text-2xl font-bold text-red-600">7</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="select-all-source" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                        <label for="select-all-source" class="text-sm font-medium text-gray-700">Select All</label>
+                    </div>
+                    <button class="text-sm text-gray-500 hover:text-gray-700">Deselect All</button>
+                </div>
+
+                <div id="source-users" class="space-y-3">
+                    <div class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked>
+                            <img class="h-10 w-10 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Sarah Johnson</h4>
+                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">45 days ago</span>
+                                </div>
+                                <p class="text-sm text-gray-500">Marketing Manager</p>
+                                <p class="text-xs text-gray-400 mt-1">Usage: 2 hours in last 90 days</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked>
+                            <img class="h-10 w-10 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg" alt="User">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">David Park</h4>
+                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">32 days ago</span>
+                                </div>
+                                <p class="text-sm text-gray-500">Content Specialist</p>
+                                <p class="text-xs text-gray-400 mt-1">Usage: 0 hours in last 90 days</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <img class="h-10 w-10 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg" alt="User">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Maria Garcia</h4>
+                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">28 days ago</span>
+                                </div>
+                                <p class="text-sm text-gray-500">Brand Manager</p>
+                                <p class="text-xs text-gray-400 mt-1">Usage: 5 hours in last 90 days</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked>
+                            <img class="h-10 w-10 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-9.jpg" alt="User">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Tom Wilson</h4>
+                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">52 days ago</span>
+                                </div>
+                                <p class="text-sm text-gray-500">Marketing Coordinator</p>
+                                <p class="text-xs text-gray-400 mt-1">Usage: 1 hour in last 90 days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="target-section" class="bg-white rounded-xl border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-arrow-right text-green-500 mr-3"></i>
+                            Target (Pending Requests)
+                        </h2>
+                        <p class="text-gray-600 mt-1">Analytics Department</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Total Pending Requests</p>
+                        <p class="text-2xl font-bold text-green-600">2</p>
+                    </div>
+                </div>
+
+                <div id="target-users" class="space-y-3">
+                    <div class="border border-gray-100 rounded-lg p-4 bg-green-50 border-green-200">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-arrow-right text-green-500"></i>
+                            <img class="h-10 w-10 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg" alt="User">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Lisa Chen</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">High Priority</span>
+                                        <span class="text-xs text-gray-500">Oct 18, 2024</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500">Senior Data Analyst</p>
+                                <p class="text-xs text-gray-600 mt-2 bg-white p-2 rounded border">
+                                    "Need advanced visualization capabilities for quarterly business review presentations and executive dashboards."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-lg p-4 bg-blue-50 border-blue-200">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-arrow-right text-blue-500"></i>
+                            <img class="h-10 w-10 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg" alt="User">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900">Alex Kumar</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Medium Priority</span>
+                                        <span class="text-xs text-gray-500">Oct 15, 2024</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500">Business Intelligence Analyst</p>
+                                <p class="text-xs text-gray-600 mt-2 bg-white p-2 rounded border">
+                                    "Required for creating interactive dashboards for sales performance tracking and customer analytics."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mapping-arrows" class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Suggested Mapping</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Sarah Johnson → Lisa Chen</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">David Park → Alex Kumar</span>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="impact-analysis" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Impact Analysis</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div id="action-summary">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Action Summary</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <span class="text-sm font-medium text-green-800">Transfer</span>
+                            <span class="text-lg font-bold text-green-600">2</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                            <span class="text-sm font-medium text-red-800">Revoke</span>
+                            <span class="text-lg font-bold text-red-600">2</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-600">Keep Unused</span>
+                            <span class="text-lg font-bold text-gray-600">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="financial-impact">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Financial Impact</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Current Monthly Cost</span>
+                            <span class="text-sm font-medium">฿29,400</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">After Optimization</span>
+                            <span class="text-sm font-medium">฿21,000</span>
+                        </div>
+                        <div class="border-t pt-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-green-600">Monthly Savings</span>
+                                <span class="text-lg font-bold text-green-600">฿8,400</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-1">
+                                <span class="text-xs text-gray-500">Annual Savings</span>
+                                <span class="text-sm font-medium text-green-600">฿100,800</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="execution-timeline">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Execution Timeline</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-6 w-6 bg-primary-600 rounded-full flex items-center justify-center">
+                                <span class="text-xs text-white font-bold">1</span>
+                            </div>
+                            <span class="text-sm text-gray-600">Notify affected users</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="h-6 w-6 bg-gray-300 rounded-full flex items-center justify-center">
+                                <span class="text-xs text-white font-bold">2</span>
+                            </div>
+                            <span class="text-sm text-gray-600">Revoke unused licenses</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="h-6 w-6 bg-gray-300 rounded-full flex items-center justify-center">
+                                <span class="text-xs text-white font-bold">3</span>
+                            </div>
+                            <span class="text-sm text-gray-600">Assign to new users</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="h-6 w-6 bg-gray-300 rounded-full flex items-center justify-center">
+                                <span class="text-xs text-white font-bold">4</span>
+                            </div>
+                            <span class="text-sm text-gray-600">Send confirmation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="configuration-section" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Configuration Options</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="notification-settings">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Notifications</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="notify-revoked" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked>
+                            <label for="notify-revoked" class="text-sm text-gray-700">Notify users about license revocation</label>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="notify-assigned" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked>
+                            <label for="notify-assigned" class="text-sm text-gray-700">Notify users about new license assignment</label>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="notify-managers" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <label for="notify-managers" class="text-sm text-gray-700">Notify department managers</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="action-settings">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Action Type</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <input type="radio" id="immediate" name="action-type" class="border-gray-300 text-primary-600 focus:ring-primary-500" checked>
+                            <label for="immediate" class="text-sm text-gray-700">Execute immediately</label>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="radio" id="scheduled" name="action-type" class="border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <label for="scheduled" class="text-sm text-gray-700">Schedule for later execution</label>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="radio" id="gradual" name="action-type" class="border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <label for="gradual" class="text-sm text-gray-700">Gradual transition over 30 days</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="action-buttons" class="flex items-center justify-end space-x-4">
+            <button class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+            <button class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                <i class="fas fa-save mr-2"></i>
+                Save Draft
+            </button>
+            <button class="bg-primary-100 text-primary-700 border border-primary-200 px-6 py-3 rounded-lg hover:bg-primary-200 transition-colors flex items-center">
+                <i class="fas fa-clock mr-2"></i>
+                Schedule Execution
+            </button>
+            <button class="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors flex items-center">
+                <i class="fas fa-play mr-2"></i>
+                Execute Now
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllCheckbox = document.getElementById('select-all-source');
+            const userCheckboxes = document.querySelectorAll('#source-users input[type="checkbox"]');
+            
+            selectAllCheckbox.addEventListener('change', function() {
+                userCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+
+            userCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const allChecked = Array.from(userCheckboxes).every(cb => cb.checked);
+                    const noneChecked = Array.from(userCheckboxes).every(cb => !cb.checked);
+                    
+                    selectAllCheckbox.checked = allChecked;
+                    selectAllCheckbox.indeterminate = !allChecked && !noneChecked;
+                });
+            });
+
+            const executeButton = document.querySelector('button:contains("Execute Now")');
+            if (executeButton) {
+                executeButton.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to execute this reallocation now? This action cannot be undone.')) {
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Executing...';
+                        this.disabled = true;
+                        this.className = 'bg-primary-400 text-white px-6 py-3 rounded-lg cursor-not-allowed';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

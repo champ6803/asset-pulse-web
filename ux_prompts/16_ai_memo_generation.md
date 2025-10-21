@@ -1,0 +1,4 @@
+# Screen 16: AI-Generated Business Case Memo
+
+Business case memo screen with rich text editor displaying AI-generated professional memo. Header shows 'AI-Generated • Editable' badge with robot icon. Action buttons: Export PDF, Send for Review, Save Draft. Memo format includes: MEMORANDUM heading, TO/FROM/CC/DATE/RE fields, horizontal divider, Executive Summary section with savings highlight, Current State Analysis with bullet points and data table, Proposed Solution section with rationale, Financial Impact section with cost breakdown and charts, Implementation Plan with timeline, Risks & Mitigation section, and Recommendation conclusion. Right sidebar showing: generation timestamp, confidence score, edit suggestions from AI, tone selector (Professional/Concise/Detailed), regenerate sections button. Footer with Back, Save Draft, Preview PDF, Send for Stakeholder Review buttons. Clean typography with proper spacing and hierarchy.
+

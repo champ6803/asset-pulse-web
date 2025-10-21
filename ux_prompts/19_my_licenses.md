@@ -1,0 +1,4 @@
+# Screen 19: My Licenses
+
+Personal licenses view showing all active and expired licenses. Filter tabs: Active, Expiring Soon, Expired, All. Search bar and category filter. License cards in grid layout displaying: app icon and name, license tier badge, status indicator (Active in green, Expiring in amber, Expired in gray), assignment date, expiry date with countdown for expiring licenses, last used timestamp with 'X days ago', usage frequency indicator with bar chart, cost per year, actions dropdown (View Usage, Request Renewal, Report Issue, Request Upgrade). Quick stats at top: total active licenses, total annual cost, most used app with icon, licenses expiring in 30 days count with warning. Empty state for new users with 'Request Your First License' CTA button. Export licenses list button.
+

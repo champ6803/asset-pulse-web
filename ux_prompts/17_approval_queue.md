@@ -1,0 +1,4 @@
+# Screen 17: Approval Queue
+
+Approval workflow screen showing pending requests requiring action. Filter tabs: All, Pending My Approval, Approved by Me, Rejected. Search bar and filters for date range, department, request type, and value range. Request cards in list view showing: request ID with copy button, requester name and photo, request type badge, submission date with relative time, items summary (X applications), total cost prominently displayed with budget comparison indicator, current approval step with progress bar, approvers chain with avatars, urgency indicator (SLA deadline), and action buttons (View Details, Quick Approve, Reject). Bulk selection checkboxes. Quick filters for high-value (>100k THB), urgent (deadline <2 days), and budget concerns. Summary stats at top: total pending count, total value, average approval time.
+

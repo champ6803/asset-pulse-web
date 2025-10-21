@@ -1,0 +1,4 @@
+# Screen 20: Usage Analytics
+
+Comprehensive analytics dashboard with time range selector (Last 7 days, 30 days, 90 days, Custom). Overview cards: total active users, total licenses, utilization rate percentage with trend arrow, total monthly cost with comparison to previous period. Main charts section: License utilization over time (area chart showing active vs inactive), Cost breakdown by application (horizontal bar chart), Department usage comparison (grouped bar chart), User activity heatmap (calendar view). Table view showing applications with columns: app name with icon, total licenses, active users, inactive users, utilization percentage with color-coded bar, cost per license, total cost, last activity date, action column with view details link. Export buttons for CSV, PDF, Excel. Filter by department, app category, and usage threshold. Drill-down capability to see individual user details.
+
