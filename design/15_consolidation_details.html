@@ -1,12 +1,475 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consolidation Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    
+<body class="bg-gray-50">
+    <div id="header" class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div id="logo-nav" class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Asset Pulse</span>
+                    </div>
+                    <nav id="main-nav" class="hidden md:ml-10 md:flex md:space-x-8">
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Dashboard</span>
+                        <span class="text-primary-600 px-3 py-2 text-sm font-medium cursor-pointer">Consolidation</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Similar Software</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Analytics</span>
+                        <span class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium cursor-pointer">Memos</span>
+                    </nav>
+                </div>
+                <div id="user-menu" class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                    </div>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600 relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">8</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3 cursor-pointer">
+                        <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User">
+                        <span class="text-sm font-medium text-gray-700">David Kim</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="breadcrumb-section" class="mb-6">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-4">
+                    <li>
+                        <div>
+                            <span class="text-gray-400 hover:text-gray-500 cursor-pointer">
+                                <i class="fas fa-home"></i>
+                            </span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-300 mr-4"></i>
+                            <span class="text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer">Consolidation</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-300 mr-4"></i>
+                            <span class="text-sm font-medium text-gray-900">Design Tools Group</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div id="header-section" class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Design Tools Consolidation</h1>
+                    <p class="text-gray-600 mt-2">Consolidate 3 design applications across 8 subsidiaries with potential savings of ฿3.2M annually</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                        <i class="fas fa-palette mr-2"></i>
+                        92% Similarity Score
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div id="current-state-section" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Current State</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subsidiary</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tool</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Users</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost/Year</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCBX Bank</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adobe Creative Cloud</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">145</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿3.2M</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCB Tech</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adobe Creative Cloud</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">89</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿2.1M</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCB Securities</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adobe Creative Cloud</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">67</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿1.5M</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCB Asset</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adobe Creative Cloud</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">42</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿980K</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCB Insurance</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Adobe Creative Cloud</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">28</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿420K</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Digital Ventures</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Figma Enterprise</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">85</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿1.2M</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCB Abacus</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Figma Enterprise</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">43</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿600K</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SCB Julius Baer</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sketch Business</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">35</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">฿600K</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-gray-50">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">Total</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">3 Tools</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">534 Users</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">฿10.6M</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div id="main-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div id="proposed-solution" class="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Proposed Solution</h2>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fab fa-adobe text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Adobe Creative Cloud Enterprise</h3>
+                            <p class="text-sm text-gray-600">Recommended unified platform for all design needs</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">Why this platform?</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">Comprehensive feature coverage across all design disciplines</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">Already used by 5 subsidiaries with established workflows</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">Volume discount available for enterprise licensing</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">24/7 enterprise support and training resources</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                <span class="text-sm text-gray-700">Pre-approved vendor with existing security compliance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="group-pricing" class="bg-gray-50 rounded-lg p-6">
+                    <h4 class="font-semibold text-gray-900 mb-4">Group Pricing Breakdown</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total Users</span>
+                            <span class="text-sm font-medium text-gray-900">534 users</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Base Cost per User</span>
+                            <span class="text-sm font-medium text-gray-900">฿18,000/year</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Subtotal</span>
+                            <span class="text-sm font-medium text-gray-900">฿9.6M</span>
+                        </div>
+                        <div class="flex justify-between text-green-600">
+                            <span class="text-sm">Group Discount (25%)</span>
+                            <span class="text-sm font-medium">-฿2.4M</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-3">
+                            <div class="flex justify-between">
+                                <span class="text-base font-semibold text-gray-900">Final Annual Cost</span>
+                                <span class="text-base font-bold text-blue-600">฿7.4M</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="financial-impact" class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Financial Impact</h3>
+                <div id="before-after-chart" class="h-48 mb-6"></div>
+                <div class="space-y-4">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-600">฿3.2M</div>
+                        <div class="text-sm text-green-700">Annual Savings</div>
+                        <div class="text-lg font-semibold text-green-600 mt-1">30% Reduction</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">ROI Calculation</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Migration Cost</span>
+                                <span class="font-medium">฿800K</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Annual Savings</span>
+                                <span class="font-medium text-green-600">฿3.2M</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Payback Period</span>
+                                <span class="font-medium">3 months</span>
+                            </div>
+                            <div class="border-t border-gray-200 pt-2">
+                                <div class="flex justify-between">
+                                    <span class="font-semibold">3-Year Savings</span>
+                                    <span class="font-bold text-green-600">฿8.8M</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="implementation-plan" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Implementation Plan</h2>
+            <div class="space-y-4">
+                <div id="phase-1" class="border border-gray-200 rounded-lg">
+                    <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-sm font-semibold text-blue-600">1</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Approval & Contracting</h4>
+                                <p class="text-sm text-gray-500">Weeks 1-2</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden">
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• Stakeholder approval from all 8 subsidiaries</li>
+                            <li>• Legal review and contract negotiation</li>
+                            <li>• Budget allocation and procurement process</li>
+                            <li>• Project team formation and kickoff</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="phase-2" class="border border-gray-200 rounded-lg">
+                    <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-sm font-semibold text-orange-600">2</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Migration</h4>
+                                <p class="text-sm text-gray-500">Weeks 3-5</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden">
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• Data and asset migration from existing tools</li>
+                            <li>• User account setup and provisioning</li>
+                            <li>• Training program rollout for all users</li>
+                            <li>• Pilot testing with key user groups</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="phase-3" class="border border-gray-200 rounded-lg">
+                    <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-sm font-semibold text-green-600">3</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Go-Live</h4>
+                                <p class="text-sm text-gray-500">Weeks 6-8</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <div class="px-6 pb-4 hidden">
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• Full platform launch across all subsidiaries</li>
+                            <li>• Legacy system decommissioning</li>
+                            <li>• Post-launch support and monitoring</li>
+                            <li>• Success metrics tracking and reporting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="risks-mitigation" class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-exclamation-triangle text-amber-500 mr-3"></i>
+                <h2 class="text-xl font-semibold text-gray-900">Risks & Mitigation</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-red-800 mb-2">User Resistance</h4>
+                    <p class="text-sm text-red-700 mb-3">Teams may resist switching from familiar tools</p>
+                    <p class="text-sm text-gray-600"><strong>Mitigation:</strong> Comprehensive training program and change management support</p>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-yellow-800 mb-2">Data Migration</h4>
+                    <p class="text-sm text-yellow-700 mb-3">Potential data loss during migration process</p>
+                    <p class="text-sm text-gray-600"><strong>Mitigation:</strong> Phased migration with backup systems and validation checkpoints</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="action-buttons" class="flex items-center justify-between">
+            <button class="flex items-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back
+            </button>
+            <div class="flex items-center space-x-4">
+                <button class="flex items-center px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    Generate Business Case Memo
+                </button>
+                <button class="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-check mr-2"></i>
+                    Approve Plan
+                </button>
+                <button class="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-times mr-2"></i>
+                    Reject
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Highcharts.chart('before-after-chart', {
+                chart: {
+                    type: 'column',
+                    backgroundColor: 'transparent',
+                    height: 200
+                },
+                title: { text: null },
+                credits: { enabled: false },
+                xAxis: {
+                    categories: ['Before', 'After'],
+                    lineColor: '#e5e7eb'
+                },
+                yAxis: {
+                    title: { text: 'Cost (Million THB)' },
+                    gridLineColor: '#f3f4f6'
+                },
+                legend: { enabled: false },
+                plotOptions: {
+                    column: {
+                        dataLabels: { 
+                            enabled: true,
+                            format: '฿{point.y}M'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Annual Cost',
+                    data: [
+                        { y: 10.6, color: '#ef4444' },
+                        { y: 7.4, color: '#10b981' }
+                    ]
+                }]
+            });
+
+            document.querySelectorAll('#implementation-plan button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('.fa-chevron-down');
+                    
+                    if (content.classList.contains('hidden')) {
+                        content.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    } else {
+                        content.classList.add('hidden');
+                        icon.classList.remove('rotate-180');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-
