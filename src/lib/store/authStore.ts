@@ -2,8 +2,9 @@
 
 import { create } from 'zustand';
 import { AuthState, UserRole } from '@/types';
+import { apiClient } from '@/lib/api';
 
-// Mock user data
+// Mock user data for fallback
 const mockUsers: Record<string, { password: string; user: any }> = {
   'employee@scb.com': {
     password: 'password',
@@ -43,17 +44,39 @@ const mockUsers: Record<string, { password: string; user: any }> = {
   },
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
+  token: null,
 
   login: async (username: string, password: string) => {
-    // Simulate API call
+    try {
+      // Try real API first
+      const response = await apiClient.login(username, password);
+      
+      if (response && response.data) {
+        const { token, user } = response.data;
+        set({ 
+          user: user, 
+          isAuthenticated: true,
+          token: token
+        });
+        return;
+      }
+    } catch (error) {
+      console.log('API login failed, falling back to mock:', error);
+    }
+
+    // Fallback to mock authentication
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const mockUser = mockUsers[username];
     if (mockUser && mockUser.password === password) {
-      set({ user: mockUser.user, isAuthenticated: true });
+      set({ 
+        user: mockUser.user, 
+        isAuthenticated: true,
+        token: 'mock-token-' + Date.now()
+      });
     } else {
       throw new Error('Invalid credentials');
     }
@@ -65,8 +88,37 @@ export const useAuthStore = create<AuthState>((set) => ({
     }));
   },
 
-  logout: () => {
-    set({ user: null, isAuthenticated: false });
+  logout: async () => {
+    const { token } = get();
+    
+    try {
+      if (token && !token.startsWith('mock-token-')) {
+        await apiClient.logout();
+      }
+    } catch (error) {
+      console.log('Logout API call failed:', error);
+    }
+
+    set({ user: null, isAuthenticated: false, token: null });
+  },
+
+  getCurrentUser: async () => {
+    const { token } = get();
+    
+    if (!token) {
+      throw new Error('No token available');
+    }
+
+    try {
+      const response = await apiClient.getCurrentUser(token);
+      if (response && response.data) {
+        set({ user: response.data });
+        return response.data;
+      }
+    } catch (error) {
+      console.log('Get current user failed:', error);
+      throw error;
+    }
   },
 }));
 

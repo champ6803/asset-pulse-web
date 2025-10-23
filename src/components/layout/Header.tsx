@@ -19,8 +19,8 @@ export default function Header({ navigation }: HeaderProps) {
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/login');
   };
 

@@ -14,9 +14,11 @@ export interface User {
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  token: string | null;
   login: (username: string, password: string) => Promise<void>;
   selectRole: (role: UserRole) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
+  getCurrentUser: () => Promise<User>;
 }
 
 export interface App {
