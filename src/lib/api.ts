@@ -145,8 +145,16 @@ class ApiClient {
   }
 
   // User Licenses
-  async getUserLicenses(token: string) {
-    return this.request('/employee/licenses', {
+  async getUserLicenses(token: string, params?: { search?: string; status?: string }) {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.status && params.status !== 'all') queryParams.append('status', params.status);
+    
+    const endpoint = queryParams.toString() 
+      ? `/employee/licenses?${queryParams.toString()}` 
+      : '/employee/licenses';
+      
+    return this.request(endpoint, {
       method: 'GET',
       token,
     });
