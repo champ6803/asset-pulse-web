@@ -68,9 +68,7 @@ export default function MyLicensesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
 
-  // Build filters object
   const filters = {
-    status: statusFilter !== "all" ? statusFilter : undefined,
     search: searchQuery || undefined,
     category: categoryFilter || undefined,
   };
@@ -78,14 +76,39 @@ export default function MyLicensesPage() {
   // Fetch licenses with filters
   const { data, isLoading, error } = useLicenses(filters);
 
-  const licenses = data?.licenses || [];
-  const activeCount = licenses.filter(
+  // Client-side filtering based on status
+  const allLicenses = data?.licenses || [];
+  const licenses = (() => {
+    switch (statusFilter) {
+      case "all":
+        return allLicenses;
+      case "active":
+        return allLicenses.filter(
+          (l) =>
+            !l.is_revoked &&
+            !isExpired(l.expire_date) &&
+            !isExpiringSoon(l.expire_date)
+        );
+      case "expiring":
+        return allLicenses.filter(
+          (l) =>
+            !l.is_revoked &&
+            isExpiringSoon(l.expire_date) &&
+            !isExpired(l.expire_date)
+        );
+      case "expired":
+        return allLicenses.filter((l) => isExpired(l.expire_date));
+      default:
+        return allLicenses;
+    }
+  })();
+  const activeCount = allLicenses.filter(
     (l) => !l.is_revoked && !isExpired(l.expire_date)
   ).length;
-  const totalCost = licenses
+  const totalCost = allLicenses
     .filter((l) => !l.is_revoked)
     .reduce((sum) => sum + 0, 0); // Cost calculation would need pricing data
-  const expiringCount = licenses.filter((l) =>
+  const expiringCount = allLicenses.filter((l) =>
     isExpiringSoon(l.expire_date)
   ).length;
 
