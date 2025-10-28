@@ -1,7 +1,11 @@
 // API Client for backend communication
 // This is a mock implementation - replace with real API calls when backend is ready
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+import axios, { AxiosInstance } from "axios";
+import type { BaseResponse } from "@/types";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 interface RequestOptions extends RequestInit {
   token?: string;
@@ -10,59 +14,72 @@ interface RequestOptions extends RequestInit {
 class ApiClient {
   private baseUrl: string;
 
+  private axiosInstance: AxiosInstance;
+
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+    this.axiosInstance = axios.create({
+      baseURL: baseUrl,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 
-  private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options: RequestOptions = {}
+  ): Promise<T> {
     const { token, ...fetchOptions } = options;
 
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...fetchOptions,
+    const response = await this.axiosInstance.request<BaseResponse<T>>({
+      url: endpoint,
+      method: (fetchOptions.method as string) || "GET",
       headers,
+      data: fetchOptions.body,
     });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-
-    return response.json();
+    // Return just the data from the BaseResponse wrapper
+    return response.data.data;
   }
 
   // Authentication
   async login(username: string, password: string) {
-    return this.request('/auth/login', {
-      method: 'POST',
+    return this.request("/auth/login", {
+      method: "POST",
       body: JSON.stringify({ username, password }),
     });
   }
 
   async logout(token: string) {
-    return this.request('/auth/logout', {
-      method: 'POST',
+    return this.request("/auth/logout", {
+      method: "POST",
       token,
     });
   }
 
   async getCurrentUser(token: string) {
-    return this.request('/auth/me', { token });
+    return this.request("/auth/me", { token });
   }
 
   // Recommendations
-  async generateJDRecommendations(data: {
-    job_title: string;
-    job_description: string;
-    department: string;
-    company_code: string;
-  }, token: string) {
-    return this.request('/recommendations/jd-match', {
-      method: 'POST',
+  async generateJDRecommendations(
+    data: {
+      job_title: string;
+      job_description: string;
+      department: string;
+      company_code: string;
+    },
+    token: string
+  ) {
+    return this.request("/recommendations/jd-match", {
+      method: "POST",
       body: JSON.stringify(data),
       token,
     });
@@ -70,25 +87,27 @@ class ApiClient {
 
   async getSeatOptimization(token: string, filters?: any) {
     const params = new URLSearchParams(filters);
-    return this.request(`/recommendations/seat-optimization?${params}`, { token });
+    return this.request(`/recommendations/seat-optimization?${params}`, {
+      token,
+    });
   }
 
   async getCrossSub(token: string) {
-    return this.request('/recommendations/cross-sub-match', { token });
+    return this.request("/recommendations/cross-sub-match", { token });
   }
 
   async getConsolidation(token: string) {
-    return this.request('/recommendations/consolidation', { token });
+    return this.request("/recommendations/consolidation", { token });
   }
 
   // Templates
   async getTemplates(token: string) {
-    return this.request('/templates', { token });
+    return this.request("/templates", { token });
   }
 
   async createTemplate(data: any, token: string) {
-    return this.request('/templates', {
-      method: 'POST',
+    return this.request("/templates", {
+      method: "POST",
       body: JSON.stringify(data),
       token,
     });
@@ -96,12 +115,22 @@ class ApiClient {
 
   // Requests
   async getRequests(token: string) {
-    return this.request('/requests', { token });
+    return this.request("/requests", { token });
+  }
+
+  async getPendingRequests<T>(token: string, limit?: number) {
+    const params = limit ? `?limit=${limit}` : "";
+    return this.request<T>(`/requests/pending${params}`, { token });
+  }
+
+  async getAIRecommendations<T>(token: string, limit?: number) {
+    const params = limit ? `?limit=${limit}` : "";
+    return this.request<T>(`/ai/recommendations${params}`, { token });
   }
 
   async createRequest(data: any, token: string) {
-    return this.request('/requests', {
-      method: 'POST',
+    return this.request("/requests", {
+      method: "POST",
       body: JSON.stringify(data),
       token,
     });
@@ -109,14 +138,14 @@ class ApiClient {
 
   async approveRequest(requestId: string, token: string) {
     return this.request(`/requests/${requestId}/approve`, {
-      method: 'POST',
+      method: "POST",
       token,
     });
   }
 
   async rejectRequest(requestId: string, token: string) {
     return this.request(`/requests/${requestId}/reject`, {
-      method: 'POST',
+      method: "POST",
       token,
     });
   }
@@ -126,11 +155,37 @@ class ApiClient {
     return this.request(`/licenses/users/${userId}`, { token });
   }
 
+  async getActiveLicenses<T>(token: string, limit?: number) {
+    const params = limit ? `?limit=${limit}` : "";
+    return this.request<T>(`/licenses/active${params}`, { token });
+  }
+
+  async getLicenses<T>(
+    token: string,
+    filters?: {
+      status?: string;
+      search?: string;
+      category?: string;
+      licenseTier?: string;
+    }
+  ) {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append("status", filters.status);
+    if (filters?.search) params.append("search", filters.search);
+    if (filters?.category) params.append("category", filters.category);
+    if (filters?.licenseTier)
+      params.append("license_tier", filters.licenseTier);
+
+    const queryString = params.toString();
+    return this.request<T>(`/licenses${queryString ? `?${queryString}` : ""}`, {
+      token,
+    });
+  }
+
   // Analytics
   async getDashboardMetrics(token: string) {
-    return this.request('/analytics/dashboard', { token });
+    return this.request("/analytics/dashboard", { token });
   }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
-

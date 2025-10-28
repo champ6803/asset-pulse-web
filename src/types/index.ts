@@ -1,4 +1,17 @@
-export type UserRole = 'employee' | 'manager' | 'subsidiary-cto' | 'group-cto';
+export type UserRole = "employee" | "manager" | "subsidiary-cto" | "group-cto";
+
+/**
+ * Base API Response wrapper
+ * All API responses from the backend follow this structure:
+ * {
+ *   "message": "success",
+ *   "data": T
+ * }
+ */
+export interface BaseResponse<T> {
+  message: string;
+  data: T;
+}
 
 export interface User {
   id: string;
@@ -31,14 +44,28 @@ export interface App {
 }
 
 export interface License {
-  id: string;
-  userId: string;
-  appId: string;
-  appName: string;
-  tier: string;
-  status: 'active' | 'inactive' | 'expiring';
-  expiresAt: string;
-  category: string;
+  license_assignment_id: number;
+  license_inventory_id?: number;
+  app_id?: number;
+  app_name: string;
+  app_logo_url?: string;
+  app_category?: string;
+  app_status?: string;
+  license_tier?: string;
+  assigned_at: string;
+  total_seats?: number;
+  reserved_seats?: number;
+  effective_date?: string;
+  expire_date?: string;
+  is_revoked: boolean;
+  revoked_at?: string;
+  last_used?: string;
+  usage_frequency?: number;
+}
+
+export interface GetActiveLicensesResponse {
+  licenses: License[];
+  total: number;
 }
 
 export interface Recommendation {
@@ -63,7 +90,7 @@ export interface Template {
   appsCount: number;
   costPerUser: number;
   budgetLimit: number;
-  status: 'active' | 'draft';
+  status: "active" | "draft";
   createdAt: string;
   lastUsed: string;
   timesUsed: number;
@@ -74,13 +101,40 @@ export interface Template {
 export interface Request {
   id: string;
   type: string;
-  status: 'pending' | 'approved' | 'rejected' | 'in_review';
+  status: "pending" | "approved" | "rejected" | "in_review";
   requester: string;
   appName: string;
   amount: number;
   submittedAt: string;
   approvals?: number;
   totalApprovals?: number;
+}
+
+export interface PendingRequest {
+  id: number;
+  ticket_no: string;
+  type: string;
+  status: string | null;
+  approvals_curr_step: number | null;
+  approvals_step: number | null;
+  app_id: number | null;
+  app_name: string | null;
+  created_at: string;
+}
+
+export interface GetPendingRequestsResponse {
+  requests: PendingRequest[];
+  total: number;
+}
+
+export interface AIRecommendation {
+  id: number;
+  app_name: string;
+  app_logo_url: string;
+  category: string;
+  relevance_score: number;
+  cost: number;
+  rationale: string;
 }
 
 export interface OptimizationOpportunity {
@@ -95,4 +149,3 @@ export interface OptimizationOpportunity {
   icon: string;
   color: string;
 }
-

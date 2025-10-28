@@ -2,97 +2,73 @@
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Link from "next/link";
+import { useActiveLicenses } from "@/lib/hooks/useLicenses";
+import { usePendingRequests } from "@/lib/hooks/useRequests";
+import { useAIRecommendations } from "@/lib/hooks/useRecommendations";
+import { formatExpireDate, isExpiringSoon } from "@/lib/utils";
 
-const mockLicenses = [
-  {
-    id: "1",
-    name: "Slack Pro",
-    category: "Communication",
-    tier: "Pro Plan",
-    status: "active" as const,
-    expiresAt: "Dec 2024",
-    icon: "fab fa-slack",
-    bgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
-  },
-  {
-    id: "2",
-    name: "Figma Professional",
-    category: "Design",
-    tier: "Professional Plan",
-    status: "active" as const,
-    expiresAt: "Mar 2025",
-    icon: "fab fa-figma",
-    bgColor: "bg-purple-100",
-    iconColor: "text-purple-600",
-  },
-  {
-    id: "3",
-    name: "GitHub Enterprise",
-    category: "Development",
-    tier: "Enterprise Plan",
-    status: "active" as const,
-    expiresAt: "Jun 2025",
-    icon: "fab fa-github",
-    bgColor: "bg-green-100",
-    iconColor: "text-green-600",
-  },
-  {
-    id: "4",
-    name: "Adobe Creative Cloud",
-    category: "Creative",
-    tier: "All Apps Plan",
-    status: "expiring" as const,
-    expiresAt: "Nov 2024",
-    icon: "fab fa-adobe",
-    bgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
-  },
-];
+// Helper function to get category-based icon and colors
+const getCategoryStyle = (category?: string) => {
+  const normalized = category?.toLowerCase() || "";
 
-const mockRecommendations = [
-  {
-    id: "1",
-    name: "Miro",
-    category: "Collaboration",
-    price: "฿1,200/month",
-    matchScore: 95,
-    description: "Perfect for your design workflow needs",
-    icon: "fas fa-chart-bar",
-    bgColor: "bg-indigo-100",
-    iconColor: "text-indigo-600",
-  },
-  {
-    id: "2",
-    name: "Loom",
-    category: "Screen Recording",
-    price: "฿800/month",
-    matchScore: 88,
-    description: "Great for creating tutorial videos",
-    icon: "fas fa-video",
-    bgColor: "bg-red-100",
-    iconColor: "text-red-600",
-  },
-];
+  if (
+    normalized.includes("communication") ||
+    normalized.includes("collaboration")
+  ) {
+    return {
+      icon: "fab fa-slack",
+      bgColor: "bg-blue-100",
+      iconColor: "text-blue-600",
+    };
+  }
+  if (normalized.includes("design") || normalized.includes("creative")) {
+    return {
+      icon: "fab fa-figma",
+      bgColor: "bg-purple-100",
+      iconColor: "text-purple-600",
+    };
+  }
+  if (normalized.includes("development") || normalized.includes("dev")) {
+    return {
+      icon: "fab fa-github",
+      bgColor: "bg-green-100",
+      iconColor: "text-green-600",
+    };
+  }
+  if (normalized.includes("productivity") || normalized.includes("office")) {
+    return {
+      icon: "fas fa-briefcase",
+      bgColor: "bg-orange-100",
+      iconColor: "text-orange-600",
+    };
+  }
 
-const mockRequests = [
-  {
-    id: "REQ-2024-001",
-    name: "Notion Team Plan",
-    status: "in_review" as const,
-    submittedAt: "Oct 15",
-    approvals: "2/3 approvals",
-  },
-  {
-    id: "REQ-2024-002",
-    name: "Tableau Desktop",
-    status: "pending" as const,
-    submittedAt: "Oct 18",
-    approvals: "0/2 approvals",
-  },
-];
+  // Default
+  return {
+    icon: "fas fa-cube",
+    bgColor: "bg-gray-100",
+    iconColor: "text-gray-600",
+  };
+};
 
 export default function EmployeeDashboard() {
+  // Use TanStack Query hook to fetch active licenses (limit to 4 for dashboard)
+  const { data, isLoading, error } = useActiveLicenses(4);
+
+  // Use TanStack Query hook to fetch pending requests (limit to 2 for dashboard)
+  const {
+    data: pendingRequestsData,
+    isLoading: isLoadingRequests,
+    error: requestsError,
+  } = usePendingRequests(2);
+
+  // Use TanStack Query hook to fetch AI recommendations (limit to 2 for dashboard)
+  const {
+    data: recommendationsData,
+    isLoading: isLoadingRecommendations,
+    error: recommendationsError,
+  } = useAIRecommendations(2);
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -153,60 +129,143 @@ export default function EmployeeDashboard() {
                   My Active Licenses
                 </h2>
                 <span className="text-sm text-gray-500">
-                  {mockLicenses.length} active
+                  {data?.total || 0} active
                 </span>
               </div>
-              <div className="space-y-4">
-                {mockLicenses.map((license) => (
-                  <div
-                    key={license.id}
-                    className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
+
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center justify-between p-4 border border-gray-100 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                        <div>
+                          <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-24"></div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : error ? (
+                <div className="text-center py-8">
+                  <p className="text-red-600 mb-2">
+                    {error instanceof Error
+                      ? error.message
+                      : "Failed to load licenses"}
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-primary-600 hover:text-primary-700 text-sm font-medium"
                   >
-                    <div className="flex items-center space-x-4">
+                    Try Again
+                  </button>
+                </div>
+              ) : data?.licenses.length === 0 ? (
+                <div className="text-center py-8">
+                  <i className="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                  <p className="text-gray-500">No active licenses found</p>
+                  <Link href="/requests/new-hire">
+                    <button className="mt-4 text-primary-600 hover:text-primary-700 text-sm font-medium">
+                      Request Software
+                    </button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {data?.licenses.map((license) => {
+                    const style = getCategoryStyle(license.app_category);
+                    const expiringSoon = isExpiringSoon(license.expire_date);
+
+                    return (
                       <div
-                        className={`w-12 h-12 ${license.bgColor} rounded-lg flex items-center justify-center`}
+                        key={license.license_assignment_id}
+                        className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
                       >
-                        <i
-                          className={`${license.icon} ${license.iconColor} text-xl`}
-                        ></i>
+                        <div className="flex items-center space-x-4">
+                          {license.app_logo_url ? (
+                            <img
+                              src={license.app_logo_url}
+                              alt={license.app_name}
+                              className="w-12 h-12 rounded-lg object-cover"
+                              onError={(e) => {
+                                // Fallback to icon if image fails to load
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.nextElementSibling?.classList.remove(
+                                  "hidden"
+                                );
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className={`w-12 h-12 ${
+                              style.bgColor
+                            } rounded-lg flex items-center justify-center ${
+                              license.app_logo_url ? "hidden" : ""
+                            }`}
+                          >
+                            <i
+                              className={`${style.icon} ${style.iconColor} text-xl`}
+                            ></i>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">
+                              {license.app_name}
+                            </h4>
+                            <p className="text-sm text-gray-500">
+                              {license.app_category || ""}
+                              {license.license_tier &&
+                                ` • ${license.license_tier} Plan`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              license.is_revoked
+                                ? "bg-red-100 text-red-800"
+                                : expiringSoon
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-green-100 text-green-800"
+                            }`}
+                          >
+                            {license.is_revoked
+                              ? "Revoked"
+                              : expiringSoon
+                              ? "Expiring Soon"
+                              : "Active"}
+                          </span>
+                          {license.expire_date && (
+                            <p
+                              className={`text-sm mt-1 ${
+                                expiringSoon
+                                  ? "text-yellow-600"
+                                  : "text-gray-500"
+                              }`}
+                            >
+                              Expires: {formatExpireDate(license.expire_date)}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">
-                          {license.name}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          {license.category} • {license.tier}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          license.status === "active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {license.status === "active"
-                          ? "Active"
-                          : "Expiring Soon"}
-                      </span>
-                      <p
-                        className={`text-sm mt-1 ${
-                          license.status === "expiring"
-                            ? "text-red-500"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        Expires: {license.expiresAt}
-                      </p>
-                    </div>
+                    );
+                  })}
+                  <div className="mt-3">
+                    <Link href="/dashboard/employee/licenses">
+                      <button className="w-full text-center text-primary-600 hover:text-gray-500 text-sm font-medium py-2 rounded-lg transition-colors">
+                        View All Licenses
+                      </button>
+                    </Link>
                   </div>
-                ))}
-                <button className="w-full text-center text-primary-600 hover:text-gray-500 text-sm font-medium py-2 rounded-lg transition-colors">
-                  View All Licenses
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -217,36 +276,88 @@ export default function EmployeeDashboard() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Pending Requests
               </h3>
-              <div className="space-y-4">
-                {mockRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="border border-gray-100 rounded-lg p-4"
+
+              {isLoadingRequests ? (
+                <div className="space-y-4">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse border border-gray-100 rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                        <div className="h-5 bg-gray-200 rounded w-16"></div>
+                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : requestsError ? (
+                <div className="text-center py-4">
+                  <p className="text-red-600 text-sm mb-2">
+                    {requestsError instanceof Error
+                      ? requestsError.message
+                      : "Failed to load requests"}
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-primary-600 hover:text-primary-700 text-xs font-medium"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-900">
-                        #{request.id}
-                      </span>
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                          request.status === "in_review"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {request.status === "in_review"
-                          ? "In Review"
-                          : "Pending"}
-                      </span>
+                    Try Again
+                  </button>
+                </div>
+              ) : pendingRequestsData?.requests.length === 0 ? (
+                <div className="text-center py-8">
+                  <i className="fas fa-inbox text-3xl text-gray-300 mb-2"></i>
+                  <p className="text-gray-500 text-sm">No pending requests</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {pendingRequestsData?.requests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="border border-gray-100 rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {request.ticket_no}
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                            request.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {request.status === "pending"
+                            ? "Pending"
+                            : request.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2 capitalize">
+                        {request.app_name}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>
+                          Submitted:
+                          {formatExpireDate(request.created_at)}
+                        </span>
+                        {request.approvals_curr_step &&
+                          request.approvals_step && (
+                            <span>
+                              {request.approvals_curr_step}/
+                              {request.approvals_step} approvals
+                            </span>
+                          )}
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{request.name}</p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>Submitted: {request.submittedAt}</span>
-                      <span>{request.approvals}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* AI Recommendations Card */}
@@ -256,49 +367,120 @@ export default function EmployeeDashboard() {
                   AI Recommendations
                 </h3>
               </div>
-              <div className="space-y-4">
-                {mockRecommendations.map((rec) => (
-                  <div
-                    key={rec.id}
-                    className="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center">
-                        <div
-                          className={`w-8 h-8 ${rec.bgColor} rounded-lg flex items-center justify-center mr-3`}
-                        >
-                          <i
-                            className={`${rec.icon} ${rec.iconColor} text-sm`}
-                          ></i>
+
+              {isLoadingRecommendations ? (
+                <div className="space-y-4">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse border border-gray-100 rounded-lg p-4"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-gray-200 rounded-lg mr-3"></div>
+                          <div>
+                            <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                            <div className="h-3 bg-gray-200 rounded w-16"></div>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-900">
-                            {rec.name}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {rec.category}
-                          </p>
+                        <div className="h-5 bg-gray-200 rounded w-16"></div>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                        <div className="h-6 bg-gray-200 rounded w-16"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : recommendationsError ? (
+                <div className="text-center py-4">
+                  <p className="text-red-600 text-sm mb-2">
+                    {recommendationsError instanceof Error
+                      ? recommendationsError.message
+                      : "Failed to load recommendations"}
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-primary-600 hover:text-primary-700 text-xs font-medium"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : recommendationsData?.length === 0 ? (
+                <div className="text-center py-8">
+                  <i className="fas fa-lightbulb text-3xl text-gray-300 mb-2"></i>
+                  <p className="text-gray-500 text-sm">
+                    No recommendations available
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recommendationsData?.map((rec) => {
+                    const style = getCategoryStyle(rec.category);
+                    return (
+                      <div
+                        key={rec.id}
+                        className="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center">
+                            {rec.app_logo_url ? (
+                              <img
+                                src={rec.app_logo_url}
+                                alt={rec.app_name}
+                                className="w-8 h-8 rounded-lg object-cover mr-3"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                  e.currentTarget.nextElementSibling?.classList.remove(
+                                    "hidden"
+                                  );
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className={`w-8 h-8 ${
+                                style.bgColor
+                              } rounded-lg flex items-center justify-center mr-3 ${
+                                rec.app_logo_url ? "hidden" : ""
+                              }`}
+                            >
+                              <i
+                                className={`${style.icon} ${style.iconColor} text-sm`}
+                              ></i>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {rec.app_name}
+                              </h4>
+                              <p className="text-xs text-gray-500">
+                                {rec.category}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
+                            {Math.round(rec.relevance_score)}% Match
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-3">
+                          {rec.rationale}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500">
+                            ฿{888}/month
+                          </span>
+                          <button className="text-xs text-primary-600 hover:text-primary-700 font-medium">
+                            Request
+                          </button>
                         </div>
                       </div>
-                      <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
-                        {rec.matchScore}% Match
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-3">
-                      {rec.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{rec.price}</span>
-                      <button className="text-xs text-primary-600 hover:text-primary-700 font-medium">
-                        Request
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <button className="w-full text-center text-primary-600 text-sm font-medium py-2 hover:text-gray-700 rounded-lg transition-colors">
-                  View All Recommendations
-                </button>
-              </div>
+                    );
+                  })}
+                  <button className="w-full text-center text-primary-600 text-sm font-medium py-2 hover:text-gray-700 rounded-lg transition-colors">
+                    View All Recommendations
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
