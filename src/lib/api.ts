@@ -36,20 +36,20 @@ class ApiClient {
   }
 
   // Authentication
-  async login(username: string, password: string) {
+  async login(username: string, password: string): Promise<{ data: { token: string; user: any } }> {
     return this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
   }
 
-  async logout() {
+  async logout(): Promise<void> {
     return this.request('/auth/logout', {
       method: 'POST',
     });
   }
 
-  async getCurrentUser(token: string) {
+  async getCurrentUser(token: string): Promise<{ data: any }> {
     return this.request('/me', {
       method: 'GET',
       token,

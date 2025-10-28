@@ -3,13 +3,6 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/manager' },
-  { label: 'Team', href: '/dashboard/manager/team' },
-  { label: 'Templates', href: '/templates' },
-  { label: 'Approvals', href: '/approvals' },
-  { label: 'Requests', href: '/requests' },
-];
 
 const mockApprovals = [
   {
@@ -82,7 +75,7 @@ const mockTemplates = [
 
 export default function ManagerDashboard() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">

@@ -15,7 +15,7 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   token: string | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<UserRole>;
   selectRole: (role: UserRole) => void;
   logout: () => Promise<void>;
   getCurrentUser: () => Promise<User>;

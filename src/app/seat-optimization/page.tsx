@@ -4,19 +4,12 @@ import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/cto' },
-  { label: 'Team', href: '/dashboard/cto/team' },
-  { label: 'Templates', href: '/templates' },
-  { label: 'Approvals', href: '/approvals' },
-  { label: 'Optimization', href: '/seat-optimization' },
-];
 
 export default function SeatOptimizationPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'revoke' | 'reallocate' | 'downgrade'>('all');
 
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">

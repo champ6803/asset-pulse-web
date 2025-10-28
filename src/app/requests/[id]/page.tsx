@@ -3,16 +3,10 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/employee' },
-  { label: 'Recommendations', href: '/dashboard/employee/recommendations' },
-  { label: 'My Licenses', href: '/dashboard/employee/licenses' },
-  { label: 'Requests', href: '/dashboard/employee/requests' },
-];
 
 export default function RequestDetailPage() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Link href="/dashboard/employee/requests" className="flex items-center text-gray-500 hover:text-gray-700">

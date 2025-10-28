@@ -4,13 +4,6 @@ import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/cto' },
-  { label: 'Consolidation', href: '/consolidation' },
-  { label: 'Similar Software', href: '/similar-software' },
-  { label: 'Analytics', href: '/analytics' },
-  { label: 'Approvals', href: '/approvals' },
-];
 
 const mockApplications = [
   {
@@ -61,7 +54,7 @@ export default function RequestDetailsPage() {
   const totalCost = mockApplications.reduce((sum, app) => sum + app.totalCost, 0);
 
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Breadcrumb */}
         <div className="mb-6">

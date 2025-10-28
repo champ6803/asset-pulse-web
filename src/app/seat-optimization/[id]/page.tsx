@@ -4,13 +4,6 @@ import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/cto' },
-  { label: 'Team', href: '/dashboard/cto/team' },
-  { label: 'Templates', href: '/templates' },
-  { label: 'Approvals', href: '/approvals' },
-  { label: 'Requests', href: '/requests' },
-];
 
 const sourceUsers = [
   {
@@ -91,7 +84,7 @@ export default function ReallocationDetailsPage() {
   const selectedCount = sourceSelections.filter((u) => u.selected).length;
 
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="mb-6">

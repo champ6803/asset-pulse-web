@@ -9,6 +9,7 @@ interface NavigationItem {
   label: string;
   href: string;
   active?: boolean;
+  icon?: string;
 }
 
 interface HeaderProps {
@@ -40,12 +41,15 @@ export default function Header({ navigation }: HeaderProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-2 text-sm font-medium cursor-pointer transition-colors ${
+                  className={`px-3 py-2 text-sm font-medium cursor-pointer transition-colors flex items-center ${
                     item.active
                       ? 'text-primary-600'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
+                  {item.icon && (
+                    <i className={`${item.icon} mr-2 text-xs`}></i>
+                  )}
                   {item.label}
                 </Link>
               ))}

@@ -2,16 +2,9 @@
 
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/employee' },
-  { label: 'Recommendations', href: '/dashboard/employee/recommendations' },
-  { label: 'Analytics', href: '/analytics' },
-  { label: 'Requests', href: '/dashboard/employee/requests' },
-];
-
 export default function AnalyticsPage() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="flex min-h-screen">
         {/* Sidebar */}
         <div className="w-64 bg-white border-r border-gray-200 p-6">

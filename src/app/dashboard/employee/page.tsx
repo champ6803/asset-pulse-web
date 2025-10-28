@@ -3,12 +3,6 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/employee' },
-  { label: 'Recommendations', href: '/dashboard/employee/recommendations' },
-  { label: 'My Licenses', href: '/dashboard/employee/licenses' },
-  { label: 'Requests', href: '/dashboard/employee/requests' },
-];
 
 const mockLicenses = [
   {
@@ -101,7 +95,7 @@ const mockRequests = [
 
 export default function EmployeeDashboard() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">

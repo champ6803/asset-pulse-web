@@ -3,17 +3,9 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/group-cto' },
-  { label: 'Consolidation', href: '/consolidation' },
-  { label: 'Similar Software', href: '/similar-software' },
-  { label: 'Analytics', href: '/analytics' },
-  { label: 'Memos', href: '/memos' },
-];
-
 export default function SimilarSoftwarePage() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">

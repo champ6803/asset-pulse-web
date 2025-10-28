@@ -3,16 +3,10 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/employee' },
-  { label: 'HR Management', href: '/requests/new-hire' },
-  { label: 'Assets', href: '/dashboard/employee/licenses' },
-  { label: 'Analytics', href: '/analytics' },
-];
 
 export default function ConfirmationPage() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12 text-center">
           {/* Success Icon */}

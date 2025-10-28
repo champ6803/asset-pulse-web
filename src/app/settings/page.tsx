@@ -2,14 +2,10 @@
 
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/employee' },
-  { label: 'Settings', href: '/settings' },
-];
 
 export default function SettingsPage() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>

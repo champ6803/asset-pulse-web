@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: true,
           token: token
         });
-        return;
+        return user.role; // Return role for immediate redirect
       }
     } catch (error) {
       console.log('API login failed, falling back to mock:', error);
@@ -72,20 +72,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const mockUser = mockUsers[username];
     if (mockUser && mockUser.password === password) {
+      // Determine role based on username for mock users
+      let role: UserRole = 'employee';
+      if (username.includes('manager')) {
+        role = 'manager';
+      } else if (username.includes('cto')) {
+        role = 'subsidiary-cto';
+      }
+      
+      const userWithRole = { ...mockUser.user, role };
       set({ 
-        user: mockUser.user, 
+        user: userWithRole, 
         isAuthenticated: true,
         token: 'mock-token-' + Date.now()
       });
+      return role;
     } else {
       throw new Error('Invalid credentials');
     }
   },
 
   selectRole: (role: UserRole) => {
-    set((state) => ({
-      user: state.user ? { ...state.user, role } : null,
-    }));
+    const { user } = get();
+    if (user) {
+      set({ user: { ...user, role } });
+    }
   },
 
   logout: async () => {

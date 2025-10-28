@@ -3,12 +3,6 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/cto' },
-  { label: 'Analytics', href: '/dashboard/cto/analytics' },
-  { label: 'Team', href: '/dashboard/cto/team' },
-  { label: 'Approvals', href: '/approvals' },
-];
 
 const mockOptimizations = [
   {
@@ -75,7 +69,7 @@ const mockHighValueApprovals = [
 
 export default function CTODashboard() {
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">

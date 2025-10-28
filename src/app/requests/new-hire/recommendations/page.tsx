@@ -5,12 +5,6 @@ import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
 
-const navigation = [
-  { label: 'Dashboard', href: '/dashboard/employee' },
-  { label: 'HR Management', href: '/requests/new-hire' },
-  { label: 'Assets', href: '/dashboard/employee/licenses' },
-  { label: 'Analytics', href: '/analytics' },
-];
 
 const mockRecommendations = [
   {
@@ -102,7 +96,7 @@ export default function RecommendationsPage() {
   };
 
   return (
-    <DashboardLayout navigation={navigation}>
+    <DashboardLayout>
       <div className="flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
         {/* Content Area */}
         <div className="flex-1">
