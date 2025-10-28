@@ -111,8 +111,32 @@ class ApiClient {
   }
 
   // Seat Optimization
-  async getSeatOptimization(token: string) {
-    return this.request('/cto/optimization', {
+  async getSeatOptimization(
+    token: string,
+    params?: {
+      companyCode?: string;
+      departmentCode?: string;
+      appName?: string;
+      action?: string;
+      sortBy?: string;
+      limit?: number;
+      offset?: number;
+    }
+  ) {
+    const queryParams = new URLSearchParams();
+    if (params?.companyCode) queryParams.append('company_code', params.companyCode);
+    if (params?.departmentCode) queryParams.append('department_code', params.departmentCode);
+    if (params?.appName) queryParams.append('app_name', params.appName);
+    if (params?.action) queryParams.append('action', params.action);
+    if (params?.sortBy) queryParams.append('sort_by', params.sortBy);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+    const endpoint = queryParams.toString()
+      ? `/cto/optimization?${queryParams.toString()}`
+      : '/cto/optimization';
+
+    return this.request(endpoint, {
       method: 'GET',
       token,
     });
