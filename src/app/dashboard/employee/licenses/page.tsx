@@ -2,9 +2,13 @@
 
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { apiClient } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
+import { License } from '@/types/license';
+import { transformLicenses } from '@/lib/transform/licenseTransform';
 
-
-const mockLicenses = [
+const mockLicenses: License[] = [
   {
     id: '1',
     name: 'Figma',
@@ -93,9 +97,45 @@ const mockLicenses = [
 ];
 
 export default function MyLicensesPage() {
-  const activeCount = mockLicenses.filter((l) => l.status === 'active').length;
-  const totalCost = mockLicenses.filter((l) => l.status === 'active').reduce((sum, l) => sum + l.cost, 0);
-  const expiringCount = mockLicenses.filter((l) => l.status === 'expiring').length;
+  const { token } = useAuthStore();
+  const [licenses, setLicenses] = useState<License[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLicenses() {
+      try {
+        if (token) {
+          const response = await apiClient.getUserLicenses(token) as { data: { licenses: any[] } };
+          const transformedLicenses = transformLicenses(response.data.licenses);
+          setLicenses(transformedLicenses);
+        }
+      } catch (error) {
+        console.error('Failed to fetch licenses:', error);
+        // Fallback to mock data
+        setLicenses(mockLicenses);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchLicenses();
+  }, [token]);
+
+  const activeCount = licenses.filter((l) => l.status === 'active' || l.status === 'expiring').length;
+  const totalCost = licenses.filter((l) => l.status !== 'expired').reduce((sum, l) => sum + l.cost, 0);
+  const expiringCount = licenses.filter((l) => l.status === 'expiring').length;
+  const mostUsedApp = licenses.sort((a, b) => b.usagePercent - a.usagePercent)[0];
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading licenses...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -229,7 +269,7 @@ export default function MyLicensesPage() {
 
         {/* Licenses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {mockLicenses.map((license) => (
+          {licenses.map((license) => (
             <div
               key={license.id}
               className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"

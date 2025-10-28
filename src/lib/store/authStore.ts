@@ -56,6 +56,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       if (response && response.data) {
         const { token, user } = response.data;
+        console.log("token: ", token)
         set({ 
           user: user, 
           isAuthenticated: true,

@@ -143,6 +143,14 @@ class ApiClient {
       token,
     });
   }
+
+  // User Licenses
+  async getUserLicenses(token: string) {
+    return this.request('/employee/licenses', {
+      method: 'GET',
+      token,
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
