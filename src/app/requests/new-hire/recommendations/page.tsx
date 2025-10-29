@@ -55,7 +55,7 @@ export default function RecommendationsPage() {
     }
   }, [data]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState<'relevance' | 'cost' | 'category'>('relevance');
+  const [sortBy, setSortBy] = useState<'relevance' | 'similarity' | 'cost' | 'category'>(appName ? 'similarity' : 'relevance');
 
   // Fallback icon resolver to make sure we always show an icon
   const resolveIconClass = (name?: string, provided?: string) => {
@@ -101,6 +101,9 @@ export default function RecommendationsPage() {
     const sorted = [...list];
     if (sortBy === 'relevance') {
       sorted.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+    } else if (sortBy === 'similarity') {
+      const getSim = (x: UIRecommendation) => (x.similarity_score ?? x.relevance_score ?? 0);
+      sorted.sort((a, b) => getSim(b) - getSim(a));
     } else if (sortBy === 'cost') {
       sorted.sort((a, b) => (a.cost || 0) - (b.cost || 0));
     } else if (sortBy === 'category') {
@@ -246,6 +249,7 @@ export default function RecommendationsPage() {
                   className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="relevance">Relevance Score</option>
+                  {appName && <option value="similarity">Similarity</option>}
                   <option value="cost">Annual Cost</option>
                   <option value="category">Category</option>
                 </select>
@@ -256,7 +260,15 @@ export default function RecommendationsPage() {
           {/* Recommendations Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {isLoading && (
-              <div className="col-span-1 md:col-span-2 text-gray-500">Loading recommendations...</div>
+              <div className="col-span-1 md:col-span-2">
+                <div className="bg-white rounded-xl border border-gray-200 p-10 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+                    <p className="text-gray-700 font-medium">Loading AI recommendations...</p>
+                    <p className="text-sm text-gray-500 mt-1">This may take a few moments</p>
+                  </div>
+                </div>
+              </div>
             )}
             {error && (
               <div className="col-span-1 md:col-span-2 text-red-600">Failed to load recommendations</div>
@@ -303,21 +315,27 @@ export default function RecommendationsPage() {
                 </div>
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Relevance Score</span>
-                    <span className={`text-sm font-bold ${
-                      (rec.relevance_score || 0) >= 90 ? 'text-green-600' : 'text-blue-600'
-                    }`}>
-                      {Math.round(rec.relevance_score || 0)}%
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">{appName ? 'Similarity' : 'Relevance Score'}</span>
+                    {(() => {
+                      const score = appName ? (rec.similarity_score ?? rec.relevance_score ?? 0) : (rec.relevance_score ?? 0);
+                      return (
+                        <span className={`text-sm font-bold ${score >= 90 ? 'text-green-600' : 'text-blue-600'}`}>
+                          {Math.round(score)}%
+                        </span>
+                      );
+                    })()}
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${
-                        (rec.relevance_score || 0) >= 90 ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${rec.relevance_score || 0}%` }}
-                    />
-                  </div>
+                  {(() => {
+                    const score = appName ? (rec.similarity_score ?? rec.relevance_score ?? 0) : (rec.relevance_score ?? 0);
+                    return (
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${score >= 90 ? 'bg-green-500' : 'bg-blue-500'}`}
+                          style={{ width: `${score}%` }}
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-gray-900">
