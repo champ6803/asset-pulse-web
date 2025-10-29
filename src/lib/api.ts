@@ -150,6 +150,13 @@ class ApiClient {
     });
   }
 
+  async getConsolidationOpportunityById(id: string, token: string) {
+    return this.request(`/group-cto/consolidation/${id}`, {
+      method: 'GET',
+      token,
+    });
+  }
+
   // Approvals
   async getPendingApprovals(token: string) {
     return this.request('/manager/approvals', {

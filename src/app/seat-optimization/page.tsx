@@ -1,11 +1,39 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { apiClient } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 
+// API Response types (snake_case from backend)
+interface SeatOptimizationAPI {
+  id: string;
+  app_id: number;
+  app_name: string;
+  app_category: string;
+  department: string;
+  department_code: string;
+  company_code: string;
+  action: 'revoke' | 'reallocate' | 'downgrade';
+  inactive_users: number;
+  pending_requests: number;
+  can_reallocate: number;
+  potential_savings: number;
+  risk_level: string;
+  priority: 1 | 2 | 3;
+  rationale: string;
+  ai_generated_rationale: string;
+  from_department?: string;
+  to_department?: string;
+  downgrade_from?: string;
+  downgrade_to?: string;
+  last_used_days?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Component state types (camelCase for easier use)
 interface SeatOptimization {
   id: string;
   appId: number;
@@ -28,8 +56,8 @@ interface SeatOptimization {
   downgradeFrom?: string;
   downgradeTo?: string;
   lastUsedDays?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface OptimizationCounts {
@@ -40,10 +68,11 @@ interface OptimizationCounts {
 }
 
 interface SeatOptimizationResponse {
+  message: string;
   data: {
-    optimizations: SeatOptimization[];
-    totalSavings: number;
-    totalUsers: number;
+    optimizations: SeatOptimizationAPI[];
+    total_savings: number;
+    total_users: number;
     counts: OptimizationCounts;
   };
 }
@@ -51,6 +80,7 @@ interface SeatOptimizationResponse {
 export default function SeatOptimizationPage() {
   const { token } = useAuthStore();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Filters
   const [activeTab, setActiveTab] = useState<'all' | 'revoke' | 'reallocate' | 'downgrade'>('all');
@@ -103,17 +133,34 @@ export default function SeatOptimizationPage() {
       const data = (response as SeatOptimizationResponse).data;
       console.log('Optimizations data:', data.optimizations);
       
-      // Map data to ensure all fields are present
+      // Map snake_case API data to camelCase for easier use
       const mappedOptimizations = data.optimizations.map(opt => ({
-        ...opt,
-        appName: opt.appName || 'Unknown App',
-        appCategory: opt.appCategory || 'General',
-        inactiveUsers: opt.inactiveUsers || 0,
+        id: opt.id,
+        appId: opt.app_id,
+        appName: opt.app_name || 'Unknown App',
+        appCategory: opt.app_category || 'General',
+        department: opt.department,
+        departmentCode: opt.department_code,
+        companyCode: opt.company_code,
+        action: opt.action,
+        inactiveUsers: opt.inactive_users || 0,
+        pendingRequests: opt.pending_requests || 0,
+        canReallocate: opt.can_reallocate || 0,
+        potentialSavings: opt.potential_savings || 0,
+        riskLevel: opt.risk_level,
+        priority: opt.priority,
+        rationale: opt.rationale,
+        aiGeneratedRationale: opt.ai_generated_rationale || opt.rationale,
+        fromDepartment: opt.from_department,
+        toDepartment: opt.to_department,
+        downgradeFrom: opt.downgrade_from,
+        downgradeTo: opt.downgrade_to,
+        lastUsedDays: opt.last_used_days || 90,
       }));
       
       setOptimizations(mappedOptimizations);
       setCounts(data.counts);
-      setTotalSavings(data.totalSavings);
+      setTotalSavings(data.total_savings);
     } catch (err) {
       console.error('Error fetching optimizations:', err);
       setError('Failed to load optimization data');
@@ -181,6 +228,14 @@ export default function SeatOptimizationPage() {
         </span>
       </div>
     );
+  };
+
+  // Handle view details click
+  const handleViewDetails = (optimization: SeatOptimization) => {
+    if (optimization.action === 'reallocate') {
+      router.push(`/seat-optimization/${optimization.id}`);
+    }
+    // Add other actions handling here if needed
   };
 
   return (
@@ -510,7 +565,10 @@ export default function SeatOptimizationPage() {
                         </div>
                       </div>
                       <div className="flex space-x-2 ml-4">
-                        <button className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                        <button 
+                          onClick={() => handleViewDetails(opt)}
+                          className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                        >
                           View Details
                         </button>
                         <button className="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-200 transition-colors">

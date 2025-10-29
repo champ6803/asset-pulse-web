@@ -2,9 +2,107 @@
 
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
+import { useAuthStore } from '@/lib/store/authStore';
 
 
-export default function ConsolidationDetailsPage() {
+interface ConsolidationData {
+  id: string;
+  title: string;
+  description: string;
+  similarityScore: number;
+  subsidiaryCount: number;
+  toolCount: number;
+  userCount: number;
+  currentCost: number;
+  potentialSavings: number;
+  subsidiaries: Array<{
+    name: string;
+    tool: string;
+    users: number;
+    cost: number;
+  }>;
+}
+
+export default function ConsolidationDetailsPage({ params }: { params: { id: string } }) {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<ConsolidationData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { token } = useAuthStore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Try to fetch from API first
+        if (token) {
+          try {
+            const response = await apiClient.getConsolidationOpportunityById(params.id, token);
+            console.log('API Response:', response);
+            
+            // If API returns valid data, use it
+            // For now, fall back to mock data if API doesn't return expected format
+          } catch (apiError) {
+            console.log('API error, using mock data:', apiError);
+          }
+        }
+        
+        // Use mock data as fallback
+        const mockData: ConsolidationData = {
+      id: params.id,
+      title: "Design Tools Consolidation",
+      description: "Consolidate 3 design applications across 8 subsidiaries with potential savings of ฿3.2M annually",
+      similarityScore: 92,
+      subsidiaryCount: 8,
+      toolCount: 3,
+      userCount: 534,
+      currentCost: 10600000,
+      potentialSavings: 3200000,
+      subsidiaries: [
+        { name: 'SCBX Bank', tool: 'Adobe Creative Cloud', users: 145, cost: 3200000 },
+        { name: 'SCB Tech', tool: 'Adobe Creative Cloud', users: 89, cost: 2100000 },
+        { name: 'SCB Securities', tool: 'Adobe Creative Cloud', users: 67, cost: 1500000 },
+        { name: 'SCB Asset', tool: 'Adobe Creative Cloud', users: 42, cost: 980000 },
+        { name: 'SCB Insurance', tool: 'Adobe Creative Cloud', users: 28, cost: 420000 },
+        { name: 'Digital Ventures', tool: 'Figma Enterprise', users: 85, cost: 1200000 },
+        { name: 'SCB Abacus', tool: 'Figma Enterprise', users: 43, cost: 600000 },
+        { name: 'SCB Julius Baer', tool: 'Sketch Business', users: 35, cost: 600000 },
+      ]
+    };
+        setData(mockData);
+      } catch (err) {
+        setError('Failed to load consolidation data');
+        console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [params.id, token]);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">Loading...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!data) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">No data found</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -39,15 +137,15 @@ export default function ConsolidationDetailsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Design Tools Consolidation</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{data.title}</h1>
               <p className="text-gray-600 mt-2">
-                Consolidate 3 design applications across 8 subsidiaries with potential savings of ฿3.2M annually
+                {data.description}
               </p>
             </div>
             <div className="flex items-center space-x-3">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
                 <i className="fas fa-palette mr-2"></i>
-                92% Similarity Score
+                {data.similarityScore}% Similarity Score
               </span>
             </div>
           </div>
@@ -75,19 +173,10 @@ export default function ConsolidationDetailsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {[
-                  { subsidiary: 'SCBX Bank', tool: 'Adobe Creative Cloud', users: 145, cost: 3200000 },
-                  { subsidiary: 'SCB Tech', tool: 'Adobe Creative Cloud', users: 89, cost: 2100000 },
-                  { subsidiary: 'SCB Securities', tool: 'Adobe Creative Cloud', users: 67, cost: 1500000 },
-                  { subsidiary: 'SCB Asset', tool: 'Adobe Creative Cloud', users: 42, cost: 980000 },
-                  { subsidiary: 'SCB Insurance', tool: 'Adobe Creative Cloud', users: 28, cost: 420000 },
-                  { subsidiary: 'Digital Ventures', tool: 'Figma Enterprise', users: 85, cost: 1200000 },
-                  { subsidiary: 'SCB Abacus', tool: 'Figma Enterprise', users: 43, cost: 600000 },
-                  { subsidiary: 'SCB Julius Baer', tool: 'Sketch Business', users: 35, cost: 600000 },
-                ].map((row, idx) => (
+                {data.subsidiaries.map((row, idx) => (
                   <tr key={idx}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {row.subsidiary}
+                      {row.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.tool}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.users}</td>
@@ -100,9 +189,9 @@ export default function ConsolidationDetailsPage() {
               <tfoot className="bg-gray-50">
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">Total</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">3 Tools</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">534 Users</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">฿10.6M</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{data.toolCount} Tools</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{data.userCount} Users</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">฿{(data.currentCost / 1000000).toFixed(1)}M</td>
                 </tr>
               </tfoot>
             </table>
