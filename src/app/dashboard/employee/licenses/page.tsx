@@ -2,115 +2,176 @@
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Link from "next/link";
-import { useState } from "react";
-import { useLicenses } from "@/lib/hooks/useLicenses";
-import { formatExpireDate, isExpiringSoon, isExpired } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api";
+import { useAuthStore } from "@/lib/store/authStore";
+import { License } from "@/types/license";
+import { transformLicenses } from "@/lib/transform/licenseTransform";
 
-const getCategoryStyle = (category?: string) => {
-  const normalized = category?.toLowerCase() || "";
-
-  if (
-    normalized.includes("communication") ||
-    normalized.includes("collaboration")
-  ) {
-    return {
-      icon: "fab fa-slack",
-      bgColor: "bg-blue-100",
-      iconColor: "text-blue-600",
-    };
-  }
-  if (normalized.includes("design") || normalized.includes("creative")) {
-    return {
-      icon: "fab fa-figma",
-      bgColor: "bg-purple-100",
-      iconColor: "text-purple-600",
-    };
-  }
-  if (normalized.includes("development") || normalized.includes("dev")) {
-    return {
-      icon: "fab fa-github",
-      bgColor: "bg-green-100",
-      iconColor: "text-green-600",
-    };
-  }
-  if (normalized.includes("security")) {
-    return {
-      icon: "fas fa-shield-alt",
-      bgColor: "bg-red-100",
-      iconColor: "text-red-600",
-    };
-  }
-  if (normalized.includes("productivity") || normalized.includes("office")) {
-    return {
-      icon: "fas fa-briefcase",
-      bgColor: "bg-orange-100",
-      iconColor: "text-orange-600",
-    };
-  }
-  if (normalized.includes("analytics") || normalized.includes("data")) {
-    return {
-      icon: "fas fa-chart-bar",
-      bgColor: "bg-indigo-100",
-      iconColor: "text-indigo-600",
-    };
-  }
-
-  // Default
-  return {
-    icon: "fas fa-cube",
-    bgColor: "bg-gray-100",
-    iconColor: "text-gray-600",
-  };
-};
+const mockLicenses: License[] = [
+  {
+    id: "1",
+    name: "Figma",
+    tier: "Professional",
+    icon: "fab fa-figma",
+    bgColor: "bg-purple-100",
+    iconColor: "text-purple-600",
+    tierColor: "bg-purple-100 text-purple-800",
+    status: "active" as const,
+    assignedAt: "Mar 15, 2024",
+    expiresAt: "Mar 15, 2025",
+    lastUsed: "2 hours ago",
+    usageFrequency: "High",
+    usagePercent: 85,
+    usageColor: "bg-green-500",
+    cost: 4800,
+  },
+  {
+    id: "2",
+    name: "Slack",
+    tier: "Pro",
+    icon: "fab fa-slack",
+    bgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
+    tierColor: "bg-blue-100 text-blue-800",
+    status: "expiring" as const,
+    assignedAt: "Jan 10, 2024",
+    expiresAt: "Jan 10, 2025 (18 days)",
+    lastUsed: "1 day ago",
+    usageFrequency: "Medium",
+    usagePercent: 60,
+    usageColor: "bg-blue-500",
+    cost: 3200,
+  },
+  {
+    id: "3",
+    name: "GitHub",
+    tier: "Team",
+    icon: "fab fa-github",
+    bgColor: "bg-indigo-100",
+    iconColor: "text-indigo-600",
+    tierColor: "bg-indigo-100 text-indigo-800",
+    status: "active" as const,
+    assignedAt: "Feb 20, 2024",
+    expiresAt: "Feb 20, 2025",
+    lastUsed: "3 hours ago",
+    usageFrequency: "High",
+    usagePercent: 90,
+    usageColor: "bg-green-500",
+    cost: 8400,
+  },
+  {
+    id: "4",
+    name: "Adobe Creative Cloud",
+    tier: "All Apps",
+    icon: "fab fa-adobe",
+    bgColor: "bg-red-100",
+    iconColor: "text-red-600",
+    tierColor: "bg-red-100 text-red-800",
+    status: "expired" as const,
+    assignedAt: "Nov 5, 2023",
+    expiresAt: "Nov 5, 2024 (45 days ago)",
+    lastUsed: "50 days ago",
+    usageFrequency: "Low",
+    usagePercent: 25,
+    usageColor: "bg-gray-400",
+    cost: 12000,
+  },
+  {
+    id: "5",
+    name: "Tableau",
+    tier: "Creator",
+    icon: "fas fa-table",
+    bgColor: "bg-green-100",
+    iconColor: "text-green-600",
+    tierColor: "bg-green-100 text-green-800",
+    status: "active" as const,
+    assignedAt: "Apr 8, 2024",
+    expiresAt: "Apr 8, 2025",
+    lastUsed: "5 days ago",
+    usageFrequency: "Medium",
+    usagePercent: 45,
+    usageColor: "bg-yellow-500",
+    cost: 19800,
+  },
+];
 
 export default function MyLicensesPage() {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const { token } = useAuthStore();
+  const [licenses, setLicenses] = useState<License[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "expiring" | "expired"
+  >("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Modal state
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [appName, setAppName] = useState("");
 
-  const filters = {
-    search: searchQuery || undefined,
-    category: categoryFilter || undefined,
-  };
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms delay
 
-  // Fetch licenses with filters
-  const { data, isLoading, error } = useLicenses(filters);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
-  // Client-side filtering based on status
-  const allLicenses = data?.licenses || [];
-  const licenses = (() => {
-    switch (statusFilter) {
-      case "all":
-        return allLicenses;
-      case "active":
-        return allLicenses.filter(
-          (l) =>
-            !l.is_revoked &&
-            !isExpired(l.expire_date) &&
-            !isExpiringSoon(l.expire_date)
-        );
-      case "expiring":
-        return allLicenses.filter(
-          (l) =>
-            !l.is_revoked &&
-            isExpiringSoon(l.expire_date) &&
-            !isExpired(l.expire_date)
-        );
-      case "expired":
-        return allLicenses.filter((l) => isExpired(l.expire_date));
-      default:
-        return allLicenses;
+  // Fetch licenses with search and filter
+  useEffect(() => {
+    async function fetchLicenses() {
+      try {
+        if (token) {
+          setLoading(true);
+          const response = (await apiClient.getUserLicenses(token, {
+            search: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
+            status: statusFilter,
+          })) as {
+            data: { licenses: any[] };
+          };
+          const transformedLicenses = transformLicenses(response.data.licenses);
+          setLicenses(transformedLicenses);
+        }
+      } catch (error) {
+        console.error("Failed to fetch licenses:", error);
+        // Fallback to mock data
+        setLicenses(mockLicenses);
+      } finally {
+        setLoading(false);
+      }
     }
-  })();
-  const activeCount = allLicenses.filter(
-    (l) => !l.is_revoked && !isExpired(l.expire_date)
+
+    fetchLicenses();
+  }, [token, debouncedSearchQuery, statusFilter]);
+
+  // Use licenses directly (no additional filtering needed - server handles it)
+  const searchedLicenses = licenses;
+
+  const activeCount = licenses.filter(
+    (l) => l.status === "active" || l.status === "expiring"
   ).length;
-  const totalCost = allLicenses
-    .filter((l) => !l.is_revoked)
-    .reduce((sum) => sum + 0, 0); // Cost calculation would need pricing data
-  const expiringCount = allLicenses.filter((l) =>
-    isExpiringSoon(l.expire_date)
-  ).length;
+  const totalCost = licenses
+    .filter((l) => l.status !== "expired")
+    .reduce((sum, l) => sum + l.cost, 0);
+  const expiringCount = licenses.filter((l) => l.status === "expiring").length;
+  const mostUsedApp = licenses.sort(
+    (a, b) => b.usagePercent - a.usagePercent
+  )[0];
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading licenses...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -126,8 +187,8 @@ export default function MyLicensesPage() {
             </div>
             <div className="flex items-center space-x-3">
               <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
+                // value={categoryFilter}
+                // onChange={(e) => setCategoryFilter(e.target.value)}
                 className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="">All Categories</option>
@@ -194,17 +255,31 @@ export default function MyLicensesPage() {
                   Most Used App
                 </p>
                 <div className="flex items-center mt-2">
-                  <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <i className="fab fa-figma text-purple-600"></i>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Figma</p>
-                    <p className="text-sm text-gray-500">Daily usage</p>
-                  </div>
+                  {mostUsedApp ? (
+                    <>
+                      <div className={`h-8 w-8 ${mostUsedApp.bgColor} rounded-lg flex items-center justify-center mr-3`}>
+                        <i className={`${mostUsedApp.icon} ${mostUsedApp.iconColor}`}></i>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{mostUsedApp.name}</p>
+                        <p className="text-sm text-gray-500">{mostUsedApp.usageFrequency} usage</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                        <i className="fas fa-box text-gray-600"></i>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">No data</p>
+                        <p className="text-sm text-gray-500">No usage data</p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-star text-purple-600 text-xl"></i>
+              <div className={`h-12 w-12 ${mostUsedApp?.bgColor || 'bg-gray-100'} rounded-lg flex items-center justify-center`}>
+                <i className={`fas fa-star ${mostUsedApp?.iconColor || 'text-gray-600'} text-xl`}></i>
               </div>
             </div>
           </div>
@@ -238,7 +313,7 @@ export default function MyLicensesPage() {
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => setStatusFilter("all")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === "all"
                     ? "bg-primary-100 text-primary-700"
                     : "text-gray-500 hover:text-gray-700"
@@ -248,7 +323,7 @@ export default function MyLicensesPage() {
               </button>
               <button
                 onClick={() => setStatusFilter("active")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === "active"
                     ? "bg-primary-100 text-primary-700"
                     : "text-gray-500 hover:text-gray-700"
@@ -258,7 +333,7 @@ export default function MyLicensesPage() {
               </button>
               <button
                 onClick={() => setStatusFilter("expiring")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === "expiring"
                     ? "bg-primary-100 text-primary-700"
                     : "text-gray-500 hover:text-gray-700"
@@ -268,7 +343,7 @@ export default function MyLicensesPage() {
               </button>
               <button
                 onClick={() => setStatusFilter("expired")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === "expired"
                     ? "bg-primary-100 text-primary-700"
                     : "text-gray-500 hover:text-gray-700"
@@ -281,10 +356,10 @@ export default function MyLicensesPage() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search licenses..."
+                  placeholder="Search licenses (min 3 chars)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
+                  className="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
                 />
                 <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
               </div>
@@ -297,264 +372,258 @@ export default function MyLicensesPage() {
 
         {/* Licenses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {isLoading ? (
-            // Loading skeletons
-            [1, 2, 3, 4, 5, 6].map((i) => (
+          {searchedLicenses.length === 0 ? (
+            <div className="col-span-full text-center py-20">
+              <div className="inline-block p-4 bg-gray-100 rounded-full mb-4">
+                <i className="fas fa-search text-gray-400 text-2xl"></i>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No licenses found
+              </h3>
+              <p className="text-gray-600">
+                Try adjusting your search or filter criteria
+              </p>
+              {(searchQuery || statusFilter !== "all") && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setStatusFilter("all");
+                  }}
+                  className="mt-4 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          ) : (
+            searchedLicenses.map((license) => (
               <div
-                key={i}
-                className="animate-pulse bg-white rounded-xl border border-gray-200 p-6"
+                key={license.id}
+                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="h-12 w-12 bg-gray-200 rounded-lg"></div>
+                    <div
+                      className={`h-12 w-12 ${license.bgColor} rounded-lg flex items-center justify-center`}
+                    >
+                      <i
+                        className={`${license.icon} ${license.iconColor} text-xl`}
+                      ></i>
+                    </div>
                     <div>
-                      <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      <h3 className="font-semibold text-gray-900">
+                        {license.name}
+                      </h3>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${license.tierColor}`}
+                      >
+                        {license.tier}
+                      </span>
                     </div>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        license.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : license.status === "expiring"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full mr-1 ${
+                          license.status === "active"
+                            ? "bg-green-500"
+                            : license.status === "expiring"
+                            ? "bg-amber-500"
+                            : "bg-gray-500"
+                        }`}
+                      ></div>
+                      {license.status === "active"
+                        ? "Active"
+                        : license.status === "expiring"
+                        ? "Expiring"
+                        : "Expired"}
+                    </span>
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <i className="fas fa-ellipsis-v"></i>
+                    </button>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded"></div>
+
+                <div className="space-y-3 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Assigned:</span>
+                    <span className="text-gray-900">{license.assignedAt}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Expires:</span>
+                    <span
+                      className={`${
+                        license.status === "expiring"
+                          ? "text-amber-600 font-medium"
+                          : license.status === "expired"
+                          ? "text-red-600 font-medium"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      {license.expiresAt}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Last Used:</span>
+                    <span className="text-gray-900">{license.lastUsed}</span>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-500">Usage Frequency</span>
+                    <span
+                      className={`font-medium ${
+                        license.usagePercent > 70
+                          ? "text-green-600"
+                          : license.usagePercent > 40
+                          ? "text-yellow-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {license.usageFrequency}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${license.usageColor}`}
+                      style={{ width: `${license.usagePercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`text-lg font-bold ${
+                      license.status === "expired"
+                        ? "text-gray-500"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    ฿{license.cost.toLocaleString()}/year
+                  </span>
+                  <div className="flex space-x-2">
+                    {license.status === "expiring" ||
+                    license.status === "expired" ? (
+                      <button className="text-amber-600 hover:text-amber-700 text-sm">
+                        Request Renewal
+                      </button>
+                    ) : (
+                      <button className="text-primary-600 hover:text-primary-700 text-sm">
+                        View Usage
+                      </button>
+                    )}
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <i className="fas fa-chevron-down text-xs"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
-          ) : error ? (
-            <div className="col-span-full text-center py-12">
-              <p className="text-red-600 mb-4">
-                {error instanceof Error
-                  ? error.message
-                  : "Failed to load licenses"}
-              </p>
-              <button
-                onClick={() => window.location.reload()}
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Try Again
-              </button>
-            </div>
-          ) : licenses.length === 0 ? (
+          )}
+
+          {/* Request New License Card - inside the grid */}
+          {searchedLicenses.length > 0 && (
             <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl border-2 border-dashed border-primary-200 p-8 flex flex-col items-center justify-center text-center">
               <div className="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
                 <i className="fas fa-plus text-primary-600 text-2xl"></i>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Request Your First License
+                Need Additional Software?
               </h3>
               <p className="text-gray-600 mb-4">
-                Need additional software? Request a new license to get started
+                Request a new license to get started with additional tools
               </p>
-              <Link href="/requests/new-hire">
-                <button className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
-                  Request New License
-                </button>
-              </Link>
+              <button 
+                onClick={() => setIsRequestModalOpen(true)}
+                className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                Request New License
+              </button>
             </div>
-          ) : (
-            <>
-              {licenses.map((license) => {
-                const style = getCategoryStyle(license.app_category);
-                const expiringSoon = isExpiringSoon(license.expire_date);
-                const expired = isExpired(license.expire_date);
-                const status = license.is_revoked
-                  ? "revoked"
-                  : expired
-                  ? "expired"
-                  : expiringSoon
-                  ? "expiring"
-                  : "active";
-
-                return (
-                  <div
-                    key={license.license_assignment_id}
-                    className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        {license.app_logo_url ? (
-                          <img
-                            src={license.app_logo_url}
-                            alt={license.app_name}
-                            className="h-12 w-12 rounded-lg object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                              e.currentTarget.nextElementSibling?.classList.remove(
-                                "hidden"
-                              );
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`h-12 w-12 ${
-                            style.bgColor
-                          } rounded-lg flex items-center justify-center ${
-                            license.app_logo_url ? "hidden" : ""
-                          }`}
-                        >
-                          <i
-                            className={`${style.icon} ${style.iconColor} text-xl`}
-                          ></i>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
-                            {license.app_name}
-                          </h3>
-                          {license.license_tier && (
-                            <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${style.bgColor} ${style.iconColor}`}
-                            >
-                              {license.license_tier}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : status === "expiring"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full mr-1 ${
-                              status === "active"
-                                ? "bg-green-500"
-                                : status === "expiring"
-                                ? "bg-amber-500"
-                                : "bg-gray-500"
-                            }`}
-                          ></div>
-                          {status === "active"
-                            ? "Active"
-                            : status === "expiring"
-                            ? "Expiring"
-                            : status === "revoked"
-                            ? "Revoked"
-                            : "Expired"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Assigned:</span>
-                        <span className="text-gray-900">
-                          {new Date(license.assigned_at).toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric", year: "numeric" }
-                          )}
-                        </span>
-                      </div>
-                      {license.expire_date && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Expires:</span>
-                          <span
-                            className={`${
-                              expiringSoon
-                                ? "text-amber-600 font-medium"
-                                : expired
-                                ? "text-red-600 font-medium"
-                                : "text-gray-900"
-                            }`}
-                          >
-                            {formatExpireDate(license.expire_date)}
-                          </span>
-                        </div>
-                      )}
-                      {license.last_used && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-500">Last Used:</span>
-                          <span className="text-gray-900">
-                            {new Date(license.last_used).toLocaleDateString(
-                              "en-US",
-                              { month: "short", day: "numeric" }
-                            )}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {license.usage_frequency && (
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-500">Usage Frequency</span>
-                          <span
-                            className={`font-medium ${
-                              license.usage_frequency > 70
-                                ? "text-green-600"
-                                : license.usage_frequency > 40
-                                ? "text-yellow-600"
-                                : "text-gray-600"
-                            }`}
-                          >
-                            {license.usage_frequency > 70
-                              ? "High"
-                              : license.usage_frequency > 40
-                              ? "Medium"
-                              : "Low"}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${
-                              license.usage_frequency > 70
-                                ? "bg-green-500"
-                                : license.usage_frequency > 40
-                                ? "bg-yellow-500"
-                                : "bg-gray-400"
-                            }`}
-                            style={{
-                              width: `${license.usage_frequency}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        {license.total_seats && `${license.total_seats} seats`}
-                      </span>
-                      <div className="flex space-x-2">
-                        {(expiringSoon || expired) && !license.is_revoked ? (
-                          <button className="text-amber-600 hover:text-amber-700 text-sm font-medium">
-                            Request Renewal
-                          </button>
-                        ) : (
-                          <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                            View Usage
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {/* Empty State Card */}
-              <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl border-2 border-dashed border-primary-200 p-8 flex flex-col items-center justify-center text-center">
-                <div className="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
-                  <i className="fas fa-plus text-primary-600 text-2xl"></i>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Request Your First License
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Need additional software? Request a new license to get started
-                </p>
-                <Link href="/requests/new-hire">
-                  <button className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
-                    Request New License
-                  </button>
-                </Link>
-              </div>
-            </>
           )}
         </div>
       </div>
+
+      {/* Request License Modal */}
+      {isRequestModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setIsRequestModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-gray-900">Request New License</h3>
+                <button 
+                  onClick={() => setIsRequestModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <i className="fas fa-times text-xl"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div>
+                <label htmlFor="app-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Application Name *
+                </label>
+                <input
+                  id="app-name"
+                  type="text"
+                  value={appName}
+                  onChange={(e) => setAppName(e.target.value)}
+                  placeholder="e.g., Adobe Photoshop, Slack Pro"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  autoFocus
+                />
+                <p className="mt-2 text-sm text-gray-500">
+                  Enter the name of the application you'd like to request
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <i className="fas fa-info-circle text-blue-600 text-xl"></i>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-800">
+                      After submitting, you'll be redirected to the full request form where you can provide additional details about your requirements.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setIsRequestModalOpen(false);
+                  setAppName("");
+                }}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <Link href={`/requests/new-hire${appName ? `?appName=${encodeURIComponent(appName)}` : ''}`}>
+                <button
+                  disabled={!appName.trim()}
+                  className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Continue
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

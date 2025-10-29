@@ -111,8 +111,32 @@ class ApiClient {
   }
 
   // Seat Optimization
-  async getSeatOptimization(token: string) {
-    return this.request('/cto/optimization', {
+  async getSeatOptimization(
+    token: string,
+    params?: {
+      companyCode?: string;
+      departmentCode?: string;
+      appName?: string;
+      action?: string;
+      sortBy?: string;
+      limit?: number;
+      offset?: number;
+    }
+  ) {
+    const queryParams = new URLSearchParams();
+    if (params?.companyCode) queryParams.append('company_code', params.companyCode);
+    if (params?.departmentCode) queryParams.append('department_code', params.departmentCode);
+    if (params?.appName) queryParams.append('app_name', params.appName);
+    if (params?.action) queryParams.append('action', params.action);
+    if (params?.sortBy) queryParams.append('sort_by', params.sortBy);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+    const endpoint = queryParams.toString()
+      ? `/cto/optimization?${queryParams.toString()}`
+      : '/cto/optimization';
+
+    return this.request(endpoint, {
       method: 'GET',
       token,
     });
@@ -121,6 +145,13 @@ class ApiClient {
   // Consolidation
   async getConsolidationOpportunities(token: string) {
     return this.request('/group-cto/consolidation', {
+      method: 'GET',
+      token,
+    });
+  }
+
+  async getConsolidationOpportunityById(id: string, token: string) {
+    return this.request(`/group-cto/consolidation/${id}`, {
       method: 'GET',
       token,
     });
@@ -138,6 +169,22 @@ class ApiClient {
   async getUsers(token: string, params?: any) {
     const queryParams = new URLSearchParams(params).toString();
     const endpoint = queryParams ? `/users?${queryParams}` : '/users';
+    return this.request(endpoint, {
+      method: 'GET',
+      token,
+    });
+  }
+
+  // User Licenses
+  async getUserLicenses(token: string, params?: { search?: string; status?: string }) {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.status && params.status !== 'all') queryParams.append('status', params.status);
+    
+    const endpoint = queryParams.toString() 
+      ? `/employee/licenses?${queryParams.toString()}` 
+      : '/employee/licenses';
+      
     return this.request(endpoint, {
       method: 'GET',
       token,
