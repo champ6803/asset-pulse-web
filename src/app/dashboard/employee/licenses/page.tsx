@@ -745,8 +745,8 @@ export default function MyLicensesPage() {
                 Cancel
               </button>
               <Link
-                href={`/requests/new-hire${
-                  appName ? `?appName=${encodeURIComponent(appName)}` : ""
+                href={`/requests/new-hire/recommendations${
+                  appName ? `?app_name=${encodeURIComponent(appName)}` : ""
                 }`}
               >
                 <button
