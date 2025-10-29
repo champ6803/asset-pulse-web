@@ -695,26 +695,10 @@ export default function SimilarSoftwarePage() {
 
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-medium text-gray-700">Sort by</span>
-              <select
-                className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                value={sortBy}
-                onChange={e => setSortBy(e.target.value as any)}
-              >
-                <option value="savings">Savings (High to Low)</option>
-                <option value="apps">Number of Apps</option>
-              </select>
-            </div>
-            <div className="text-sm text-gray-500">
-              Showing {filteredAndSorted.length} groups{lastUpdated && ` • Updated ${formatTimeAgo(Math.floor((new Date().getTime() - lastUpdated.getTime()) / 60000))}`}
-            </div>
-          </div>
-          <div className="flex justify-end">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
-                placeholder="Search software by name..."
+                placeholder="Find existing or similar software"
                 className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
@@ -737,6 +721,22 @@ export default function SimilarSoftwarePage() {
                 </svg>
                 Search
               </button>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">Sort by</span>
+              <select
+                className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value as any)}
+              >
+                <option value="savings">Savings (High to Low)</option>
+                <option value="apps">Number of Apps</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <div className="text-sm text-gray-500">
+              Showing {filteredAndSorted.length} groups{lastUpdated && ` • Updated ${formatTimeAgo(Math.floor((new Date().getTime() - lastUpdated.getTime()) / 60000))}`}
             </div>
           </div>
         </div>
