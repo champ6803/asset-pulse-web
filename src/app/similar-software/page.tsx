@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { apiClient } from '@/lib/api/client';
 import { useAuthStore } from '@/lib/store/authStore';
+import toast, { Toaster } from 'react-hot-toast';
 
 type PricingMode = "piecewise" | "progressive";
 
@@ -40,6 +42,7 @@ type Cluster = {
   description?: string;
   apps: AppInCluster[];
   candidate_pricing: VendorPricing[]; // available target vendor pricing for this cluster
+  subsidiaries?: string[]; // All subsidiaries using apps in this cluster (from backend)
 };
 
 type SwitchingPolicy = {
@@ -201,132 +204,93 @@ function formatTimeAgo(minutes: number): string {
   return `${days} day${days > 1 ? 's' : ''} ago`;
 }
 
-// Backend response types
-type BackendGroupConsolidationOpp = {
-  id: number;
-  company_code?: string;
-  app_id?: number;
-  app?: {
-    id: number;
-    name: string;
-    category?: string;
-    vendor_id?: number;
-    vendor?: {
-      id: number;
-      name: string;
-    };
-  };
-  current_contract_ids?: number[];
-  potential_saving_amt?: number;
-  rationale?: string;
-  snapshot_json?: any;
-  status?: string;
-  subsidiaries?: string[]; // Enriched from license_assignments
+// Backend response types (matching new API structure)
+type BackendSimilarSoftwareCluster = {
+  key: string;
+  name: string;
+  description: string;
+  common_features: string[];
+  apps: BackendSimilarSoftwareApp[];
+  total_users: number;
+  current_cost_year: number;
+  potential_saving?: number;
+  subsidiaries: string[];
+};
+
+type BackendSimilarSoftwareApp = {
+  app_id: number;
+  name: string;
+  vendor_id?: number;
+  vendor_name?: string;
+  category?: string;
+  users: number;
+  price_per_seat: number;
+  billing_period: "monthly" | "yearly";
+  currency: string;
+  cost_year: number;
+  subsidiaries: string[];
+  details: BackendSimilarSoftwareAppDetail[];
+};
+
+type BackendSimilarSoftwareAppDetail = {
+  subsidiary: string;
+  users: number;
+  price_per_seat: number;
+  billing_period: "monthly" | "yearly";
+  cost_year: number;
 };
 
 // Transform backend data to frontend cluster format
 async function transformBackendDataToClusters(
-  backendData: BackendGroupConsolidationOpp[],
+  backendData: BackendSimilarSoftwareCluster[],
   token: string
 ): Promise<Cluster[]> {
-  // Group by category or feature cluster
-  const clustersMap = new Map<string, Cluster>();
+  const clusters: Cluster[] = [];
 
-  for (const opp of backendData) {
-    if (!opp.app) continue;
+  for (const backendCluster of backendData) {
+    const cluster: Cluster = {
+      key: backendCluster.key,
+      name: backendCluster.name,
+      description: backendCluster.description,
+      apps: [],
+      candidate_pricing: [],
+    };
 
-    // Group by category for similar apps
-    const category = opp.app.category || 'General';
-    const clusterKey = category.toLowerCase().replace(/\s+/g, '_');
-    const vendorName = opp.app.vendor?.name || 'Unknown Vendor';
-    const vendorId = opp.app.vendor?.id?.toString() || opp.app.vendor_id?.toString() || 'unknown';
-
-    if (!clustersMap.has(clusterKey)) {
-      clustersMap.set(clusterKey, {
-        key: clusterKey,
-        name: category,
-        description: `Similar ${category} applications used across subsidiaries`,
-        apps: [],
-        candidate_pricing: [],
-      });
+    // Transform apps
+    for (const backendApp of backendCluster.apps) {
+      const app: AppInCluster = {
+        app_id: backendApp.app_id.toString(),
+        name: backendApp.name,
+        vendor_id: backendApp.vendor_id?.toString() || 'unknown',
+        vendor_name: backendApp.vendor_name || 'Unknown Vendor',
+        users: backendApp.users,
+        price_per_seat: backendApp.price_per_seat,
+        billing_period: backendApp.billing_period,
+        subsidiaries: backendApp.subsidiaries,
+      };
+      // Store details on app object for datatable rendering
+      (app as any).details = backendApp.details;
+      cluster.apps.push(app);
     }
+    
+    // Store cluster-level subsidiaries
+    cluster.subsidiaries = backendCluster.subsidiaries;
 
-    const cluster = clustersMap.get(clusterKey)!;
-    
-    // Get subsidiaries that use this app
-    // Check if enriched data has subsidiaries array
-    const enrichedOpp = opp as any;
-    const subsidiaries: string[] = enrichedOpp.subsidiaries && Array.isArray(enrichedOpp.subsidiaries)
-      ? enrichedOpp.subsidiaries
-      : opp.company_code ? [opp.company_code] : [];
-    
-    // Try to get user count and pricing from contracts/license_assignments
-    // This would require additional API call - for now use reasonable defaults
-    const users = 60; // Default, should be fetched from actual data
-    const pricePerSeat = 500; // Default, should be fetched from price_books or contract_terms
-    
-    // Check if app already exists in cluster
-    const existingApp = cluster.apps.find(a => a.app_id === opp.app!.id.toString());
-    if (!existingApp) {
-      cluster.apps.push({
-        app_id: opp.app.id.toString(),
-        name: opp.app.name,
-        vendor_id: vendorId,
-        vendor_name: vendorName,
-        users: users,
-        price_per_seat: pricePerSeat,
-        billing_period: "monthly",
-        subsidiaries: subsidiaries,
-      });
-    } else {
-      // Merge subsidiaries if app already exists
-      const mergedSubs = new Set([...existingApp.subsidiaries, ...subsidiaries]);
-      existingApp.subsidiaries = Array.from(mergedSubs);
-    }
-
-    // Add default pricing as candidate (will be fetched separately if endpoint exists)
-    if (!cluster.candidate_pricing.find(p => p.vendor_id === vendorId)) {
-      // Try to get pricing tiers from API
-      try {
-        const tiers = await apiClient.getVendorPricingTiers(token, clusterKey, vendorId);
-        if (tiers && Array.isArray(tiers) && tiers.length > 0) {
-          cluster.candidate_pricing.push(tiers[0]);
-        } else {
-          // Default pricing
-          cluster.candidate_pricing.push({
-            vendor_id: vendorId,
-            vendor_name: vendorName,
-            feature_cluster_key: clusterKey,
-            pricing_mode: "piecewise",
-            billing_period: "monthly",
-            currency: "THB",
-            tiers: [
-              { threshold_qty: 1, unit_price: 600 },
-              { threshold_qty: 50, unit_price: 500 },
-              { threshold_qty: 200, unit_price: 400 },
-            ],
-          });
-        }
-      } catch (e) {
-        // Fallback to default pricing
-        cluster.candidate_pricing.push({
-          vendor_id: vendorId,
-          vendor_name: vendorName,
-          feature_cluster_key: clusterKey,
-          pricing_mode: "piecewise",
-          billing_period: "monthly",
-          currency: "THB",
-          tiers: [
-            { threshold_qty: 1, unit_price: 600 },
-            { threshold_qty: 50, unit_price: 500 },
-            { threshold_qty: 200, unit_price: 400 },
-          ],
-        });
+    // Fetch vendor pricing tiers for this cluster
+    try {
+      const tiers = await apiClient.getVendorPricingTiers(token, backendCluster.key);
+      if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+        cluster.candidate_pricing = tiers as unknown as VendorPricing[];
       }
+    } catch (e) {
+      // Keep empty if fetch fails
+      console.error("Failed to fetch pricing tiers:", e);
     }
+
+    clusters.push(cluster);
   }
 
-  return Array.from(clustersMap.values());
+  return clusters;
 }
 
 // Mock data fallback (non-hook version for use in callbacks)
@@ -399,6 +363,7 @@ function getMockClusters(): Cluster[] {
 
 export default function SimilarSoftwarePage() {
   const { token } = useAuthStore();
+  const router = useRouter();
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -408,13 +373,128 @@ export default function SimilarSoftwarePage() {
     migration_flat_cost: 50000,
     early_termination_penalty_rate: 0.0,
   });
-  const [selectedTarget, setSelectedTarget] = useState<Record<string, string>>({});
   // Removed: companyCode, category, minSimilarity filters (as per requirement)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchInput, setSearchInput] = useState<string>(''); // Input field value
+  const [searchQuery, setSearchQuery] = useState<string>(''); // Actual search query used for API
   const [subsidiaries, setSubsidiaries] = useState<Array<{code: string; name: string}>>([]);
-  const [selectedSubsidiary, setSelectedSubsidiary] = useState<Record<string, string>>({});
-  const [selectedAppId, setSelectedAppId] = useState<Record<string, string | null>>({});
+  const [selectedSubsidiaries, setSelectedSubsidiaries] = useState<Record<string, string[]>>({}); // Array of selected subsidiaries per cluster
+  const [selectedAppId, setSelectedAppId] = useState<Record<string, string | null>>({}); // Selected app per cluster
+  const [datatableData, setDatatableData] = useState<Record<string, any[]>>({}); // Datatable rows per cluster key
+
+  // Function to fetch datatable data for a specific app and subsidiaries
+  // Returns: { success: boolean, newRowCount: number }
+  const fetchDatatableData = async (clusterKey: string, appId: string | null, subsidiaryList: string[], previousRowCount?: number) => {
+    if (!token || !appId) {
+      setDatatableData(prev => ({ ...prev, [clusterKey]: [] }));
+      return { success: false, newRowCount: 0 };
+    }
+
+    try {
+      console.log(`Fetching datatable data for app ${appId} with subsidiaries:`, subsidiaryList);
+      const backendData = await apiClient.getSimilarSoftwareClusters(token, {
+        app_id: appId,
+        subsidiaries: subsidiaryList.length > 0 ? subsidiaryList : undefined,
+      }) as BackendSimilarSoftwareCluster[];
+
+      console.log(`Received backend data:`, backendData);
+
+      // Extract datatable rows from response
+      if (Array.isArray(backendData) && backendData.length > 0) {
+        const allRows: any[] = [];
+        backendData.forEach(cluster => {
+          cluster.apps.forEach(app => {
+            if (app.details && app.details.length > 0) {
+              app.details.forEach(detail => {
+                // Only include details for subsidiaries that were requested
+                // This ensures we only show what was explicitly added
+                if (subsidiaryList.length === 0 || subsidiaryList.includes(detail.subsidiary)) {
+                  allRows.push({
+                    app_id: app.app_id.toString(),
+                    name: app.name,
+                    vendor_name: app.vendor_name || 'Unknown',
+                    subsidiary: detail.subsidiary,
+                    users: detail.users,
+                    price_per_seat: detail.price_per_seat,
+                    billing_period: detail.billing_period,
+                  });
+                }
+              });
+            }
+          });
+        });
+        console.log(`Extracted ${allRows.length} rows for datatable`);
+        
+        // Compare with previous row count to check if new data was added
+        const hasNewData = previousRowCount !== undefined && allRows.length > previousRowCount;
+        const isStillEmpty = allRows.length === 0;
+        
+        // If we have requested subsidiaries but no data found, show toast warning
+        if (subsidiaryList.length > 0 && isStillEmpty) {
+          console.warn(`No data found for app ${appId} and subsidiaries:`, subsidiaryList);
+          const subNames = subsidiaryList.map(code => {
+            const sub = subsidiaries.find(s => s.code === code);
+            return sub ? sub.name : code;
+          }).join(', ');
+          toast.error(`No data found for ${subNames}`, {
+            duration: 4000,
+            icon: '⚠️',
+          });
+        } else if (previousRowCount !== undefined && !hasNewData && !isStillEmpty) {
+          // New subsidiary was added but no additional rows were found
+          const newlyAddedSubs = subsidiaryList.slice(previousRowCount === 0 ? 0 : Math.max(0, subsidiaryList.length - 1));
+          if (newlyAddedSubs.length > 0) {
+            const subName = subsidiaries.find(s => s.code === newlyAddedSubs[newlyAddedSubs.length - 1])?.name || newlyAddedSubs[newlyAddedSubs.length - 1];
+            toast.error(`No additional data found for ${subName}`, {
+              duration: 4000,
+              icon: '⚠️',
+            });
+          }
+        }
+        
+        setDatatableData(prev => ({ ...prev, [clusterKey]: allRows }));
+        return { success: true, newRowCount: allRows.length };
+      } else {
+        console.log("No backend data received or empty array");
+        // If we requested specific subsidiaries but got no data, show toast warning
+        if (subsidiaryList.length > 0) {
+          console.warn(`No data found for requested subsidiaries:`, subsidiaryList);
+          const subNames = subsidiaryList.map(code => {
+            const sub = subsidiaries.find(s => s.code === code);
+            return sub ? sub.name : code;
+          }).join(', ');
+          toast.error(`No data found for ${subNames}`, {
+            duration: 4000,
+            icon: '⚠️',
+          });
+        }
+        setDatatableData(prev => ({ ...prev, [clusterKey]: [] }));
+        return { success: false, newRowCount: 0 };
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch datatable data:", err);
+      
+      // Better error handling - check if it's a 404 or no data error
+      if (err?.response?.status === 404) {
+        console.warn(`API endpoint not found or no data for app ${appId} with subsidiaries:`, subsidiaryList);
+        // Keep existing data, don't clear on 404
+        // This allows user to see previous data even if new subsidiary has no data
+      } else if (err?.response?.status >= 500) {
+        console.error("Server error:", err.response?.data);
+        // On server error, keep existing data
+      } else {
+        // Other errors - might be network issues
+        console.error("Request failed:", err.message);
+      }
+      
+      // Don't clear datatable on error - keep existing data
+      // Only clear if this is the initial load (subsidiaryList is empty)
+      if (subsidiaryList.length === 0) {
+        setDatatableData(prev => ({ ...prev, [clusterKey]: [] }));
+      }
+      return { success: false, newRowCount: previousRowCount || 0 };
+    }
+  };
 
   // Fetch subsidiaries
   useEffect(() => {
@@ -446,7 +526,9 @@ export default function SimilarSoftwarePage() {
         setError(null);
         
         // Try to fetch from API
-        const backendData = await apiClient.getSimilarSoftwareClusters(token, {}) as BackendGroupConsolidationOpp[];
+        const backendData = await apiClient.getSimilarSoftwareClusters(token, {
+          app_name: searchQuery || undefined,
+        }) as BackendSimilarSoftwareCluster[];
         
         if (Array.isArray(backendData) && backendData.length > 0) {
           // Backend should already include subsidiaries in response
@@ -470,22 +552,10 @@ export default function SimilarSoftwarePage() {
             console.error("Failed to fetch pricing tiers:", e);
           }
           setClusters(transformed);
-          
-          // Initialize selected targets
-          const initial: Record<string, string> = {};
-          transformed.forEach(c => {
-            initial[c.key] = c.candidate_pricing[0]?.vendor_id || '';
-          });
-          setSelectedTarget(initial);
         } else {
           // Fallback to mock data if API returns empty
           const mockClusters = getMockClusters();
           setClusters(mockClusters);
-          const initial: Record<string, string> = {};
-          mockClusters.forEach(c => {
-            initial[c.key] = c.candidate_pricing[0]?.vendor_id || '';
-          });
-          setSelectedTarget(initial);
           setLastUpdated(new Date());
         }
       } catch (err) {
@@ -493,11 +563,6 @@ export default function SimilarSoftwarePage() {
         // Fallback to mock data on error
         const mockClusters = getMockClusters();
         setClusters(mockClusters);
-        const initial: Record<string, string> = {};
-        mockClusters.forEach(c => {
-          initial[c.key] = c.candidate_pricing[0]?.vendor_id || '';
-        });
-        setSelectedTarget(initial);
         setLastUpdated(new Date());
         setError("Failed to load data. Using sample data.");
       } finally {
@@ -506,14 +571,14 @@ export default function SimilarSoftwarePage() {
     };
 
     fetchClusters();
-  }, [token]);
+  }, [token, searchQuery]); // Only fetch when searchQuery changes (not searchInput)
 
   const enriched = useMemo(() => {
     return clusters.map(cluster => {
       const currentYear = calcCurrentCostYear(cluster);
       const totalUnits = cluster.apps.reduce((n, a) => n + a.users, 0);
-      const chosenVendorId = selectedTarget[cluster.key];
-      const chosenPricing = cluster.candidate_pricing.find(v => v.vendor_id === chosenVendorId) || cluster.candidate_pricing[0];
+      // Use first pricing as default (no Target Vendor selection)
+      const chosenPricing = cluster.candidate_pricing[0];
       const licensesYear = chosenPricing ? calcProposedLicensesCostYear(totalUnits, chosenPricing) : 0;
       const switchYear = calcSwitchingCostYear(totalUnits, policy, currentYear);
       const proposedYear = licensesYear + switchYear;
@@ -531,7 +596,7 @@ export default function SimilarSoftwarePage() {
         chosenPricing,
       };
     });
-  }, [clusters, policy, selectedTarget]);
+  }, [clusters, policy]);
 
   const filteredAndSorted = useMemo(() => {
     let filtered = enriched;
@@ -564,6 +629,7 @@ export default function SimilarSoftwarePage() {
   if (loading) {
     return (
       <DashboardLayout>
+        <Toaster position="top-right" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -578,6 +644,7 @@ export default function SimilarSoftwarePage() {
 
   return (
     <DashboardLayout>
+      <Toaster position="top-right" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
           <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -647,17 +714,19 @@ export default function SimilarSoftwarePage() {
                 type="text"
                 placeholder="Search software by name..."
                 className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
                 onKeyPress={e => {
                   if (e.key === 'Enter') {
                     // Trigger search on Enter
+                    setSearchQuery(searchInput.trim());
                   }
                 }}
               />
               <button
                 onClick={() => {
-                  // Trigger search
+                  // Trigger search when button is clicked
+                  setSearchQuery(searchInput.trim());
                 }}
                 className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-sm flex items-center"
               >
@@ -675,56 +744,11 @@ export default function SimilarSoftwarePage() {
             const theme = getClusterTheme(cluster.name);
             const features = getCommonFeatures(cluster.name);
             const similarity = Math.min(95, 60 + cluster.apps.length * 8);
-            const clusterSelectedSubsidiary = selectedSubsidiary[cluster.key] || '';
             const clusterSelectedApp = selectedAppId[cluster.key] || null;
+            const clusterSelectedSubsidiaries = selectedSubsidiaries[cluster.key] || [];
             
-            // Filter datatable rows based on selected app and subsidiary
-            let datatableRows = cluster.apps;
-            
-            // Filter by selected app
-            if (clusterSelectedApp) {
-              datatableRows = datatableRows.filter(app => app.app_id === clusterSelectedApp);
-            }
-            
-            // Filter by selected subsidiary
-            if (clusterSelectedSubsidiary) {
-              datatableRows = datatableRows.filter(app => 
-                app.subsidiaries.includes(clusterSelectedSubsidiary)
-              );
-            }
-            
-            // Group by app_id and subsidiary to show unique combinations
-            const groupedRows = new Map<string, {
-              app_id: string;
-              name: string;
-              vendor_name: string;
-              subsidiary: string;
-              users: number;
-              price_per_seat: number;
-              billing_period: "monthly" | "yearly";
-            }>();
-            
-            datatableRows.forEach(app => {
-              app.subsidiaries.forEach(subsidiary => {
-                // If filtering by subsidiary, only show matching ones
-                if (!clusterSelectedSubsidiary || subsidiary === clusterSelectedSubsidiary) {
-                  const key = `${app.app_id}-${subsidiary}`;
-                  if (!groupedRows.has(key)) {
-                    groupedRows.set(key, {
-                      app_id: app.app_id,
-                      name: app.name,
-                      vendor_name: app.vendor_name,
-                      subsidiary: subsidiary,
-                      users: app.users, // TODO: Get actual users per subsidiary
-                      price_per_seat: app.price_per_seat,
-                      billing_period: app.billing_period as "monthly" | "yearly",
-                    });
-                  }
-                }
-              });
-            });
-            
-            const uniqueDatatableRows = Array.from(groupedRows.values());
+            // Use datatable data from API (only shows selected app + selected subsidiaries)
+            const uniqueDatatableRows = datatableData[cluster.key] || [];
             
             // Calculate summary from datatable
             let summaryFromDatatable = {
@@ -787,23 +811,6 @@ export default function SimilarSoftwarePage() {
                   </div>
                 </div>
 
-                {/* Subsidiary Dropdown */}
-                <div className="mb-5">
-                  <div className="text-sm font-medium text-gray-700 mb-1">Subsidiary</div>
-                  <select
-                    className="w-1/4 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    value={selectedSubsidiary[cluster.key] || ''}
-                    onChange={e => {
-                      const selected = e.target.value;
-                      setSelectedSubsidiary(prev => ({ ...prev, [cluster.key]: selected }));
-                    }}
-                  >
-                    <option value="">Select Subsidiary</option>
-                    {subsidiaries.map(sub => (
-                      <option key={sub.code} value={sub.code}>{sub.name} ({sub.code})</option>
-                    ))}
-                  </select>
-                </div>
 
                 {/* App tiles */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -817,11 +824,24 @@ export default function SimilarSoftwarePage() {
                         className={`bg-gray-50 rounded-lg p-4 border cursor-pointer transition-all hover:shadow-md ${
                           isSelected ? 'ring-2 ring-primary-500 border-primary-500 bg-blue-50' : ''
                         }`}
-                        onClick={() => {
+                        onClick={async () => {
+                          const newAppId = isSelected ? null : app.app_id;
                           setSelectedAppId(prev => ({
                             ...prev,
-                            [cluster.key]: isSelected ? null : app.app_id
+                            [cluster.key]: newAppId
                           }));
+                          // Clear selected subsidiaries when app changes
+                          setSelectedSubsidiaries(prev => {
+                            const newState = { ...prev };
+                            delete newState[cluster.key];
+                            return newState;
+                          });
+                          // Fetch datatable data for selected app
+                          if (newAppId) {
+                            await fetchDatatableData(cluster.key, newAppId, [], undefined);
+                          } else {
+                            setDatatableData(prev => ({ ...prev, [cluster.key]: [] }));
+                          }
                         }}
                       >
                         <div className="flex items-center space-x-3 mb-2">
@@ -926,13 +946,16 @@ export default function SimilarSoftwarePage() {
                             <th className="py-2 pr-4">Price/Seat</th>
                             <th className="py-2 pr-4">Period</th>
                             <th className="py-2 pr-4">Cost/Year</th>
+                            <th className="py-2 pr-4">Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           {uniqueDatatableRows.length === 0 ? (
                             <tr>
-                              <td colSpan={7} className="py-4 text-center text-gray-500">
-                                No apps match the selected filters
+                              <td colSpan={8} className="py-4 text-center text-gray-500">
+                                {clusterSelectedApp 
+                                  ? "Select subsidiaries to add to the datatable" 
+                                  : "Select an app from above to view details"}
                               </td>
                             </tr>
                           ) : (
@@ -947,6 +970,26 @@ export default function SimilarSoftwarePage() {
                                   <td className="py-2 pr-4">{thb(row.price_per_seat)}</td>
                                   <td className="py-2 pr-4">{row.billing_period}</td>
                                   <td className="py-2 pr-4">{thb(perSeatYear * row.users)}</td>
+                                  <td className="py-2 pr-4">
+                                    <button
+                                      onClick={async () => {
+                                        // Remove subsidiary from selected list
+                                        const newList = clusterSelectedSubsidiaries.filter(c => c !== row.subsidiary);
+                                        setSelectedSubsidiaries(prev => ({ ...prev, [cluster.key]: newList }));
+                                        // Refresh datatable data
+                                        if (clusterSelectedApp) {
+                                          const prevCount = datatableData[cluster.key]?.length || 0;
+                                          await fetchDatatableData(cluster.key, clusterSelectedApp, newList, prevCount);
+                                        }
+                                      }}
+                                      className="text-red-600 hover:text-red-800 hover:bg-red-50 rounded px-2 py-1 transition-colors"
+                                      title="Remove from datatable"
+                                    >
+                                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                    </button>
+                                  </td>
                                 </tr>
                               );
                             })
@@ -957,15 +1000,58 @@ export default function SimilarSoftwarePage() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <div className="text-sm font-medium text-gray-700 mb-1">Target Vendor</div>
+                      <div className="text-sm font-medium text-gray-700 mb-1">Add Subsidiary</div>
                       <select
                         className="w-full bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        value={selectedTarget[cluster.key]}
-                        onChange={e => setSelectedTarget(prev => ({ ...prev, [cluster.key]: e.target.value }))}
+                        value=""
+                        onChange={async (e) => {
+                          const selected = e.target.value;
+                          if (selected && clusterSelectedApp) {
+                            // Add subsidiary to the list (avoid duplicates)
+                            const currentList = selectedSubsidiaries[cluster.key] || [];
+                            if (!currentList.includes(selected)) {
+                              // Get current row count before fetching
+                              const previousRowCount = datatableData[cluster.key]?.length || 0;
+                              const newList = [...currentList, selected];
+                              setSelectedSubsidiaries(prev => ({ ...prev, [cluster.key]: newList }));
+                              
+                              try {
+                                // Fetch datatable data with new subsidiary list
+                                // Toast will be shown in fetchDatatableData if no new data found
+                                await fetchDatatableData(cluster.key, clusterSelectedApp, newList, previousRowCount);
+                              } catch (err: any) {
+                                // If fetch fails, remove the subsidiary from list and show error
+                                const subName = subsidiaries.find(s => s.code === selected)?.name || selected;
+                                setSelectedSubsidiaries(prev => ({
+                                  ...prev,
+                                  [cluster.key]: (prev[cluster.key] || []).filter(c => c !== selected)
+                                }));
+                                console.error("Failed to fetch data for subsidiary:", selected, err);
+                                toast.error(`Failed to load data for ${subName}`, {
+                                  duration: 4000,
+                                  icon: '❌',
+                                });
+                              }
+                            }
+                          }
+                          // Reset select to empty value after selection
+                          e.target.value = "";
+                        }}
+                        disabled={!clusterSelectedApp}
                       >
-                        {cluster.candidate_pricing.map(v => (
-                          <option key={v.vendor_id} value={v.vendor_id}>{v.vendor_name}</option>
-                        ))}
+                        <option value="">Select Subsidiary to Add</option>
+                        {(cluster.subsidiaries || [])
+                          .filter(code => {
+                            // Only show subsidiaries that are not already selected/added
+                            return !clusterSelectedSubsidiaries.includes(code);
+                          })
+                          .map(code => {
+                            const sub = subsidiaries.find(s => s.code === code);
+                            return sub ? { code: sub.code, name: sub.name } : { code, name: code };
+                          })
+                          .map(sub => (
+                            <option key={sub.code} value={sub.code}>{sub.name} ({sub.code})</option>
+                          ))}
                       </select>
                     </div>
                     {chosenPricing && (
@@ -988,8 +1074,7 @@ export default function SimilarSoftwarePage() {
                     <div className="flex items-center space-x-3 pt-1">
                       <button 
                         onClick={() => {
-                          // TODO: Navigate to consolidation plan page or show modal
-                          console.log('View consolidation plan for cluster:', cluster.key);
+                          router.push(`/consolidation/${cluster.key}`);
                         }}
                         className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-sm flex items-center"
                       >

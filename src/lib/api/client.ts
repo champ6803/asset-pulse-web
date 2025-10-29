@@ -24,6 +24,33 @@ class ApiClient {
         "Content-Type": "application/json",
       },
     });
+
+    // Add error interceptor for better error handling
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // Log error details for debugging
+        if (error.response) {
+          // Server responded with error status
+          console.error("API Error Response:", {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            data: error.response.data,
+            url: error.config?.url,
+          });
+        } else if (error.request) {
+          // Request made but no response received
+          console.error("API Error: No response received", {
+            url: error.config?.url,
+            message: error.message,
+          });
+        } else {
+          // Error setting up request
+          console.error("API Error: Request setup failed", error.message);
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   private async request<T>(
@@ -216,6 +243,7 @@ class ApiClient {
     min_similarity?: number;
     category?: string;
     app_name?: string;
+    app_id?: string;
   }) {
     const params = new URLSearchParams();
     if (filters?.company_code) params.append("company_code", filters.company_code);
@@ -225,6 +253,7 @@ class ApiClient {
     if (filters?.min_similarity) params.append("min_similarity", filters.min_similarity.toString());
     if (filters?.category) params.append("category", filters.category);
     if (filters?.app_name) params.append("app_name", filters.app_name);
+    if (filters?.app_id) params.append("app_id", filters.app_id);
     
     const queryString = params.toString();
     const endpoint = queryString 
