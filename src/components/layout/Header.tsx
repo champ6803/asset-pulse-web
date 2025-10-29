@@ -1,9 +1,9 @@
 "use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuthStore } from '@/lib/store/authStore';
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import Link from "next/link";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useRouter } from "next/navigation";
 
 interface NavigationItem {
   label: string;
@@ -22,7 +22,7 @@ export default function Header({ navigation }: HeaderProps) {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    router.push("/login");
   };
 
   return (
@@ -34,7 +34,9 @@ export default function Header({ navigation }: HeaderProps) {
               <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
                 <i className="fas fa-chart-line text-white text-sm"></i>
               </div>
-              <span className="text-xl font-bold text-gray-900">Asset Pulse</span>
+              <span className="text-xl font-bold text-gray-900">
+                Asset Pulse
+              </span>
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               {navigation.map((item) => (
@@ -43,27 +45,25 @@ export default function Header({ navigation }: HeaderProps) {
                   href={item.href}
                   className={`px-3 py-2 text-sm font-medium cursor-pointer transition-colors flex items-center ${
                     item.active
-                      ? 'text-primary-600'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? "text-primary-600"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  {item.icon && (
-                    <i className={`${item.icon} mr-2 text-xs`}></i>
-                  )}
+                  {item.icon && <i className={`${item.icon} mr-2 text-xs`}></i>}
                   {item.label}
                 </Link>
               ))}
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="relative hidden lg:block">
+            {/* <div className="relative hidden lg:block">
               <input
                 type="text"
                 placeholder="Search..."
                 className="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
               />
               <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-            </div>
+            </div> */}
             <div className="relative">
               <button className="text-gray-400 hover:text-gray-600 relative">
                 <i className="fas fa-bell text-lg"></i>
@@ -73,18 +73,16 @@ export default function Header({ navigation }: HeaderProps) {
               </button>
             </div>
             <div className="flex items-center space-x-3 cursor-pointer group relative">
-              {user?.avatar && (
-                <img
-                  className="h-8 w-8 rounded-full object-cover"
-                  src={user.avatar}
-                  alt={user.displayName}
-                />
-              )}
-              <span className="text-sm font-medium text-gray-700">
-                {user?.displayName || 'User'}
+              <img
+                className="h-8 w-8 rounded-full object-cover"
+                src={`https://ui-avatars.com/api/?name=${user?.display_name}&background=random&size=128`}
+                alt={user?.display_name}
+              />
+              <span className="text-sm font-medium text-gray-700 truncate">
+                {user?.display_name || "User"}
               </span>
               <i className="fas fa-chevron-down text-gray-400 text-xs"></i>
-              
+
               {/* Dropdown Menu */}
               <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <div className="py-2">
@@ -119,4 +117,3 @@ export default function Header({ navigation }: HeaderProps) {
     </div>
   );
 }
-

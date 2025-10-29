@@ -105,7 +105,7 @@ export default function MyLicensesPage() {
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  
+
   // Modal state
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [appName, setAppName] = useState("");
@@ -122,13 +122,17 @@ export default function MyLicensesPage() {
   }, [searchQuery]);
 
   // Fetch licenses with search and filter
+  // Fetch licenses with search and filter
   useEffect(() => {
     async function fetchLicenses() {
       try {
+        setLoading(true);
         if (token) {
-          setLoading(true);
           const response = (await apiClient.getUserLicenses(token, {
-            search: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
+            search:
+              debouncedSearchQuery.length >= 3
+                ? debouncedSearchQuery
+                : undefined,
             status: statusFilter,
           })) as {
             data: { licenses: any[] };
@@ -162,13 +166,112 @@ export default function MyLicensesPage() {
     (a, b) => b.usagePercent - a.usagePercent
   )[0];
 
+  // Skeleton Loading Component
+  const SkeletonLoader = () => (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header Skeleton */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-9 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl border border-gray-200 p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-3"></div>
+                <div className="h-8 w-20 bg-gray-200 rounded animate-pulse mb-3"></div>
+                <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="h-12 w-12 bg-gray-200 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters Skeleton */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse"
+              ></div>
+            ))}
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="h-9 w-64 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Licenses Grid Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl border border-gray-200 p-6"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="h-12 w-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div>
+                  <div className="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+            <div className="space-y-3 mb-4">
+              <div className="flex justify-between">
+                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="flex justify-between">
+                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="flex justify-between">
+                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+            <div className="mb-4">
+              <div className="flex justify-between mb-1">
+                <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="w-full h-2 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading licenses...</p>
-        </div>
+        <SkeletonLoader />
       </DashboardLayout>
     );
   }
@@ -257,12 +360,20 @@ export default function MyLicensesPage() {
                 <div className="flex items-center mt-2">
                   {mostUsedApp ? (
                     <>
-                      <div className={`h-8 w-8 ${mostUsedApp.bgColor} rounded-lg flex items-center justify-center mr-3`}>
-                        <i className={`${mostUsedApp.icon} ${mostUsedApp.iconColor}`}></i>
+                      <div
+                        className={`h-8 w-8 ${mostUsedApp.bgColor} rounded-lg flex items-center justify-center mr-3`}
+                      >
+                        <i
+                          className={`${mostUsedApp.icon} ${mostUsedApp.iconColor}`}
+                        ></i>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">{mostUsedApp.name}</p>
-                        <p className="text-sm text-gray-500">{mostUsedApp.usageFrequency} usage</p>
+                        <p className="font-semibold text-gray-900">
+                          {mostUsedApp.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {mostUsedApp.usageFrequency} usage
+                        </p>
                       </div>
                     </>
                   ) : (
@@ -278,8 +389,16 @@ export default function MyLicensesPage() {
                   )}
                 </div>
               </div>
-              <div className={`h-12 w-12 ${mostUsedApp?.bgColor || 'bg-gray-100'} rounded-lg flex items-center justify-center`}>
-                <i className={`fas fa-star ${mostUsedApp?.iconColor || 'text-gray-600'} text-xl`}></i>
+              <div
+                className={`h-12 w-12 ${
+                  mostUsedApp?.bgColor || "bg-gray-100"
+                } rounded-lg flex items-center justify-center`}
+              >
+                <i
+                  className={`fas fa-star ${
+                    mostUsedApp?.iconColor || "text-gray-600"
+                  } text-xl`}
+                ></i>
               </div>
             </div>
           </div>
@@ -542,7 +661,7 @@ export default function MyLicensesPage() {
               <p className="text-gray-600 mb-4">
                 Request a new license to get started with additional tools
               </p>
-              <button 
+              <button
                 onClick={() => setIsRequestModalOpen(true)}
                 className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors"
               >
@@ -555,12 +674,20 @@ export default function MyLicensesPage() {
 
       {/* Request License Modal */}
       {isRequestModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setIsRequestModalOpen(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setIsRequestModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-900">Request New License</h3>
-                <button 
+                <h3 className="text-xl font-bold text-gray-900">
+                  Request New License
+                </h3>
+                <button
                   onClick={() => setIsRequestModalOpen(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
@@ -568,10 +695,13 @@ export default function MyLicensesPage() {
                 </button>
               </div>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div>
-                <label htmlFor="app-name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="app-name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Application Name *
                 </label>
                 <input
@@ -595,7 +725,9 @@ export default function MyLicensesPage() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-blue-800">
-                      After submitting, you'll be redirected to the full request form where you can provide additional details about your requirements.
+                      After submitting, you'll be redirected to the full request
+                      form where you can provide additional details about your
+                      requirements.
                     </p>
                   </div>
                 </div>
@@ -612,7 +744,11 @@ export default function MyLicensesPage() {
               >
                 Cancel
               </button>
-              <Link href={`/requests/new-hire${appName ? `?appName=${encodeURIComponent(appName)}` : ''}`}>
+              <Link
+                href={`/requests/new-hire${
+                  appName ? `?appName=${encodeURIComponent(appName)}` : ""
+                }`}
+              >
                 <button
                   disabled={!appName.trim()}
                   className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"

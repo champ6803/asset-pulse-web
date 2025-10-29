@@ -1,3 +1,5 @@
+import { User } from "@/lib/api";
+
 export type UserRole = "employee" | "manager" | "subsidiary-cto" | "group-cto";
 
 /**
@@ -13,21 +15,11 @@ export interface BaseResponse<T> {
   data: T;
 }
 
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  displayName: string;
-  role?: UserRole;
-  companyCode?: string;
-  departmentCode?: string;
-  avatar?: string;
-}
-
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   token: string | null;
+  initialize: () => Promise<void>;
   login: (username: string, password: string) => Promise<UserRole>;
   selectRole: (role: UserRole) => void;
   logout: () => Promise<void>;
