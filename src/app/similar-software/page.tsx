@@ -381,6 +381,8 @@ export default function SimilarSoftwarePage() {
   const [selectedSubsidiaries, setSelectedSubsidiaries] = useState<Record<string, string[]>>({}); // Array of selected subsidiaries per cluster
   const [selectedAppId, setSelectedAppId] = useState<Record<string, string | null>>({}); // Selected app per cluster
   const [datatableData, setDatatableData] = useState<Record<string, any[]>>({}); // Datatable rows per cluster key
+  const [previousResponseLength, setPreviousResponseLength] = useState<Record<string, number>>({}); // Previous API response length per cluster key
+  const [failedSubsidiaries, setFailedSubsidiaries] = useState<Record<string, string[]>>({}); // Subsidiaries that returned 500 error per cluster key (to hide from dropdown)
 
   // Function to fetch datatable data for a specific app and subsidiaries
   // Returns: { success: boolean, newRowCount: number }
@@ -398,16 +400,15 @@ export default function SimilarSoftwarePage() {
       }) as BackendSimilarSoftwareCluster[];
 
       console.log(`Received backend data:`, backendData);
-
+      
       // Extract datatable rows from response
+      // If API returns 200, no alert should be shown
       if (Array.isArray(backendData) && backendData.length > 0) {
         const allRows: any[] = [];
         backendData.forEach(cluster => {
           cluster.apps.forEach(app => {
             if (app.details && app.details.length > 0) {
               app.details.forEach(detail => {
-                // Only include details for subsidiaries that were requested
-                // This ensures we only show what was explicitly added
                 if (subsidiaryList.length === 0 || subsidiaryList.includes(detail.subsidiary)) {
                   allRows.push({
                     app_id: app.app_id.toString(),
@@ -425,40 +426,28 @@ export default function SimilarSoftwarePage() {
         });
         console.log(`Extracted ${allRows.length} rows for datatable`);
         
-        // Compare with previous row count to check if new data was added
-        const hasNewData = previousRowCount !== undefined && allRows.length > previousRowCount;
-        const isStillEmpty = allRows.length === 0;
-        
-        // If we have requested subsidiaries but no data found, show toast warning
-        if (subsidiaryList.length > 0 && isStillEmpty) {
-          console.warn(`No data found for app ${appId} and subsidiaries:`, subsidiaryList);
-          const subNames = subsidiaryList.map(code => {
-            const sub = subsidiaries.find(s => s.code === code);
-            return sub ? sub.name : code;
-          }).join(', ');
-          toast.error(`No data found for ${subNames}`, {
-            duration: 4000,
-            icon: '⚠️',
-          });
-        } else if (previousRowCount !== undefined && !hasNewData && !isStillEmpty) {
-          // New subsidiary was added but no additional rows were found
-          const newlyAddedSubs = subsidiaryList.slice(previousRowCount === 0 ? 0 : Math.max(0, subsidiaryList.length - 1));
-          if (newlyAddedSubs.length > 0) {
-            const subName = subsidiaries.find(s => s.code === newlyAddedSubs[newlyAddedSubs.length - 1])?.name || newlyAddedSubs[newlyAddedSubs.length - 1];
-            toast.error(`No additional data found for ${subName}`, {
-              duration: 4000,
-              icon: '⚠️',
-            });
-          }
-        }
-        
+        // Update previous response length and datatable
+        const currentResponseLength = backendData.length;
+        setPreviousResponseLength(prev => ({ ...prev, [clusterKey]: currentResponseLength }));
         setDatatableData(prev => ({ ...prev, [clusterKey]: allRows }));
         return { success: true, newRowCount: allRows.length };
       } else {
         console.log("No backend data received or empty array");
-        // If we requested specific subsidiaries but got no data, show toast warning
+        
+        // If API returns 200 with empty array, no alert (200 means success)
+        const currentResponseLength = 0;
+        setPreviousResponseLength(prev => ({ ...prev, [clusterKey]: currentResponseLength }));
+        setDatatableData(prev => ({ ...prev, [clusterKey]: [] }));
+        return { success: true, newRowCount: 0 };
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch datatable data:", err);
+      
+      // Check if it's a 500 error (no data found for requested subsidiaries)
+      if (err?.response?.status === 500) {
+        console.warn(`No data found for app ${appId} with subsidiaries:`, subsidiaryList);
+        // Show toast error
         if (subsidiaryList.length > 0) {
-          console.warn(`No data found for requested subsidiaries:`, subsidiaryList);
           const subNames = subsidiaryList.map(code => {
             const sub = subsidiaries.find(s => s.code === code);
             return sub ? sub.name : code;
@@ -468,17 +457,30 @@ export default function SimilarSoftwarePage() {
             icon: '⚠️',
           });
         }
-        setDatatableData(prev => ({ ...prev, [clusterKey]: [] }));
-        return { success: false, newRowCount: 0 };
-      }
-    } catch (err: any) {
-      console.error("Failed to fetch datatable data:", err);
-      
-      // Better error handling - check if it's a 404 or no data error
-      if (err?.response?.status === 404) {
-        console.warn(`API endpoint not found or no data for app ${appId} with subsidiaries:`, subsidiaryList);
+        // Remove the last selected subsidiary from the list
+        if (subsidiaryList.length > 0) {
+          const lastSub = subsidiaryList[subsidiaryList.length - 1];
+          setSelectedSubsidiaries(prev => ({
+            ...prev,
+            [clusterKey]: (prev[clusterKey] || []).filter(c => c !== lastSub)
+          }));
+          // Add to failed subsidiaries list to hide from dropdown
+          setFailedSubsidiaries(prev => {
+            const currentFailed = prev[clusterKey] || [];
+            if (!currentFailed.includes(lastSub)) {
+              return {
+                ...prev,
+                [clusterKey]: [...currentFailed, lastSub]
+              };
+            }
+            return prev;
+          });
+        }
+        // Keep existing data, don't clear on 500
+        return { success: false, newRowCount: previousRowCount || 0 };
+      } else if (err?.response?.status === 404) {
+        console.warn(`API endpoint not found for app ${appId} with subsidiaries:`, subsidiaryList);
         // Keep existing data, don't clear on 404
-        // This allows user to see previous data even if new subsidiary has no data
       } else if (err?.response?.status >= 500) {
         console.error("Server error:", err.response?.data);
         // On server error, keep existing data
@@ -1043,7 +1045,10 @@ export default function SimilarSoftwarePage() {
                         {(cluster.subsidiaries || [])
                           .filter(code => {
                             // Only show subsidiaries that are not already selected/added
-                            return !clusterSelectedSubsidiaries.includes(code);
+                            const isSelected = clusterSelectedSubsidiaries.includes(code);
+                            // Hide subsidiaries that returned 500 error
+                            const isFailed = (failedSubsidiaries[cluster.key] || []).includes(code);
+                            return !isSelected && !isFailed;
                           })
                           .map(code => {
                             const sub = subsidiaries.find(s => s.code === code);
