@@ -31,6 +31,7 @@ type AppInCluster = {
   // Current price per seat after contract/list normalization
   price_per_seat: number; // THB per seat per period (normalized to billing period below)
   billing_period: "monthly" | "yearly";
+  subsidiaries: string[]; // เพิ่มฟิลด์นี้
 };
 
 type Cluster = {
@@ -208,6 +209,7 @@ type BackendGroupConsolidationOpp = {
   app?: {
     id: number;
     name: string;
+    category?: string;
     vendor_id?: number;
     vendor?: {
       id: number;
@@ -219,26 +221,31 @@ type BackendGroupConsolidationOpp = {
   rationale?: string;
   snapshot_json?: any;
   status?: string;
+  subsidiaries?: string[]; // Enriched from license_assignments
 };
 
 // Transform backend data to frontend cluster format
-function transformBackendDataToClusters(backendData: BackendGroupConsolidationOpp[]): Cluster[] {
-  // Group by app similarity or use snapshot_json if available
+async function transformBackendDataToClusters(
+  backendData: BackendGroupConsolidationOpp[],
+  token: string
+): Promise<Cluster[]> {
+  // Group by category or feature cluster
   const clustersMap = new Map<string, Cluster>();
 
-  backendData.forEach((opp) => {
-    if (!opp.app) return;
+  for (const opp of backendData) {
+    if (!opp.app) continue;
 
-    // Use app name as cluster key for now (can be enhanced with feature_cluster_key later)
-    const clusterKey = opp.app.name.toLowerCase().replace(/\s+/g, '_');
+    // Group by category for similar apps
+    const category = opp.app.category || 'General';
+    const clusterKey = category.toLowerCase().replace(/\s+/g, '_');
     const vendorName = opp.app.vendor?.name || 'Unknown Vendor';
     const vendorId = opp.app.vendor?.id?.toString() || opp.app.vendor_id?.toString() || 'unknown';
 
     if (!clustersMap.has(clusterKey)) {
       clustersMap.set(clusterKey, {
         key: clusterKey,
-        name: `${opp.app.name} Group`,
-        description: opp.rationale || undefined,
+        name: category,
+        description: `Similar ${category} applications used across subsidiaries`,
         apps: [],
         candidate_pricing: [],
       });
@@ -246,35 +253,78 @@ function transformBackendDataToClusters(backendData: BackendGroupConsolidationOp
 
     const cluster = clustersMap.get(clusterKey)!;
     
-    // Add app to cluster
-    // Note: This is simplified - real implementation should get user counts and pricing from contracts
-    cluster.apps.push({
-      app_id: opp.app.id.toString(),
-      name: opp.app.name,
-      vendor_id: vendorId,
-      vendor_name: vendorName,
-      users: 50, // TODO: Get from license_assignments or contracts
-      price_per_seat: 500, // TODO: Get from contract_terms or price_books
-      billing_period: "monthly",
-    });
+    // Get subsidiaries that use this app
+    // Check if enriched data has subsidiaries array
+    const enrichedOpp = opp as any;
+    const subsidiaries: string[] = enrichedOpp.subsidiaries && Array.isArray(enrichedOpp.subsidiaries)
+      ? enrichedOpp.subsidiaries
+      : opp.company_code ? [opp.company_code] : [];
+    
+    // Try to get user count and pricing from contracts/license_assignments
+    // This would require additional API call - for now use reasonable defaults
+    const users = 60; // Default, should be fetched from actual data
+    const pricePerSeat = 500; // Default, should be fetched from price_books or contract_terms
+    
+    // Check if app already exists in cluster
+    const existingApp = cluster.apps.find(a => a.app_id === opp.app!.id.toString());
+    if (!existingApp) {
+      cluster.apps.push({
+        app_id: opp.app.id.toString(),
+        name: opp.app.name,
+        vendor_id: vendorId,
+        vendor_name: vendorName,
+        users: users,
+        price_per_seat: pricePerSeat,
+        billing_period: "monthly",
+        subsidiaries: subsidiaries,
+      });
+    } else {
+      // Merge subsidiaries if app already exists
+      const mergedSubs = new Set([...existingApp.subsidiaries, ...subsidiaries]);
+      existingApp.subsidiaries = Array.from(mergedSubs);
+    }
 
     // Add default pricing as candidate (will be fetched separately if endpoint exists)
     if (!cluster.candidate_pricing.find(p => p.vendor_id === vendorId)) {
-      cluster.candidate_pricing.push({
-        vendor_id: vendorId,
-        vendor_name: vendorName,
-        feature_cluster_key: clusterKey,
-        pricing_mode: "piecewise",
-        billing_period: "monthly",
-        currency: "THB",
-        tiers: [
-          { threshold_qty: 1, unit_price: 600 },
-          { threshold_qty: 50, unit_price: 500 },
-          { threshold_qty: 200, unit_price: 400 },
-        ],
-      });
+      // Try to get pricing tiers from API
+      try {
+        const tiers = await apiClient.getVendorPricingTiers(token, clusterKey, vendorId);
+        if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+          cluster.candidate_pricing.push(tiers[0]);
+        } else {
+          // Default pricing
+          cluster.candidate_pricing.push({
+            vendor_id: vendorId,
+            vendor_name: vendorName,
+            feature_cluster_key: clusterKey,
+            pricing_mode: "piecewise",
+            billing_period: "monthly",
+            currency: "THB",
+            tiers: [
+              { threshold_qty: 1, unit_price: 600 },
+              { threshold_qty: 50, unit_price: 500 },
+              { threshold_qty: 200, unit_price: 400 },
+            ],
+          });
+        }
+      } catch (e) {
+        // Fallback to default pricing
+        cluster.candidate_pricing.push({
+          vendor_id: vendorId,
+          vendor_name: vendorName,
+          feature_cluster_key: clusterKey,
+          pricing_mode: "piecewise",
+          billing_period: "monthly",
+          currency: "THB",
+          tiers: [
+            { threshold_qty: 1, unit_price: 600 },
+            { threshold_qty: 50, unit_price: 500 },
+            { threshold_qty: 200, unit_price: 400 },
+          ],
+        });
+      }
     }
-  });
+  }
 
   return Array.from(clustersMap.values());
 }
@@ -286,9 +336,9 @@ function getMockClusters(): Cluster[] {
       name: "Design & Creative Tools",
       description: "UI/UX design, prototyping, collaboration",
       apps: [
-        { app_id: "figma-a", name: "Figma", vendor_id: "figma", vendor_name: "Figma Inc.", users: 70, price_per_seat: 450, billing_period: "monthly" },
-        { app_id: "adobe-xd", name: "Adobe XD", vendor_id: "adobe", vendor_name: "Adobe", users: 30, price_per_seat: 11000, billing_period: "yearly" },
-        { app_id: "sketch", name: "Sketch", vendor_id: "sketch", vendor_name: "Sketch B.V.", users: 20, price_per_seat: 9, billing_period: "monthly" },
+        { app_id: "figma-a", name: "Figma", vendor_id: "figma", vendor_name: "Figma Inc.", users: 70, price_per_seat: 450, billing_period: "monthly", subsidiaries: ["SCBX", "SCB"] },
+        { app_id: "adobe-xd", name: "Adobe XD", vendor_id: "adobe", vendor_name: "Adobe", users: 30, price_per_seat: 11000, billing_period: "yearly", subsidiaries: ["SCBX"] },
+        { app_id: "sketch", name: "Sketch", vendor_id: "sketch", vendor_name: "Sketch B.V.", users: 20, price_per_seat: 9, billing_period: "monthly", subsidiaries: ["SCB"] },
       ],
       candidate_pricing: [
         {
@@ -324,8 +374,8 @@ function getMockClusters(): Cluster[] {
       name: "Project Management",
       description: "Planning, tracking, and sprint management",
       apps: [
-        { app_id: "jira", name: "Jira Software", vendor_id: "atlassian", vendor_name: "Atlassian", users: 180, price_per_seat: 400, billing_period: "monthly" },
-        { app_id: "asana", name: "Asana", vendor_id: "asana", vendor_name: "Asana", users: 60, price_per_seat: 300, billing_period: "monthly" },
+        { app_id: "jira", name: "Jira Software", vendor_id: "atlassian", vendor_name: "Atlassian", users: 180, price_per_seat: 400, billing_period: "monthly", subsidiaries: ["SCBX", "SCB", "DATAX"] },
+        { app_id: "asana", name: "Asana", vendor_id: "asana", vendor_name: "Asana", users: 60, price_per_seat: 300, billing_period: "monthly", subsidiaries: ["SCBX", "SCB"] },
       ],
       candidate_pricing: [
         {
@@ -359,28 +409,28 @@ export default function SimilarSoftwarePage() {
     early_termination_penalty_rate: 0.0,
   });
   const [selectedTarget, setSelectedTarget] = useState<Record<string, string>>({});
-  const [companyCode, setCompanyCode] = useState<string | undefined>(undefined);
-  const [category, setCategory] = useState<string | undefined>(undefined);
-  const [minSimilarity, setMinSimilarity] = useState<number>(80);
+  // Removed: companyCode, category, minSimilarity filters (as per requirement)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [subsidiaries, setSubsidiaries] = useState<Array<{code: string; name: string}>>([]);
+  const [selectedSubsidiary, setSelectedSubsidiary] = useState<Record<string, string>>({});
+  const [selectedAppId, setSelectedAppId] = useState<Record<string, string | null>>({});
 
-  function handleExport() {
-    const payload = clusters.map(c => ({
-      key: c.key,
-      name: c.name,
-      apps: c.apps.map(a => ({ name: a.name, vendor: a.vendor_name, users: a.users })),
-      candidate_pricing: c.candidate_pricing.map(p => ({ vendor: p.vendor_name, mode: p.pricing_mode, period: p.billing_period, tiers: p.tiers })),
-    }));
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'similar_software_clusters.json';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  }
+  // Fetch subsidiaries
+  useEffect(() => {
+    if (!token) return;
+    
+    const fetchSubsidiaries = async () => {
+      try {
+        const data = await apiClient.getCompanies(token);
+        setSubsidiaries(data.map(c => ({ code: c.code, name: c.name })));
+      } catch (err) {
+        console.error("Failed to fetch subsidiaries:", err);
+      }
+    };
+    
+    fetchSubsidiaries();
+  }, [token]);
 
   // Fetch clusters from API with filters and enrich pricing tiers
   useEffect(() => {
@@ -396,28 +446,28 @@ export default function SimilarSoftwarePage() {
         setError(null);
         
         // Try to fetch from API
-        const backendData = await apiClient.getSimilarSoftwareClusters(token, {
-          company_code: companyCode,
-          category: category,
-          min_similarity: minSimilarity,
-        });
+        const backendData = await apiClient.getSimilarSoftwareClusters(token, {}) as BackendGroupConsolidationOpp[];
         
         if (Array.isArray(backendData) && backendData.length > 0) {
-          let transformed = transformBackendDataToClusters(backendData as any);
-          // fetch vendor pricing tiers per cluster and merge
+          // Backend should already include subsidiaries in response
+          let transformed = await transformBackendDataToClusters(backendData, token);
+          
+          // Post-process: get actual subsidiaries from license assignments if possible
+          // This would require a new API endpoint: GET /similar-software/apps/{app_id}/subsidiaries
+          // For now, we'll use mock/default data
+          // fetch vendor pricing tiers per cluster and merge (if not already fetched)
           try {
-            const tierLists = await Promise.all(
-              transformed.map(c => apiClient.getVendorPricingTiers(token, c.key))
-            );
-            transformed = transformed.map((c, idx) => {
-              const tiers = tierLists[idx] as unknown as VendorPricing[];
-              return {
-                ...c,
-                candidate_pricing: (tiers && Array.isArray(tiers) && tiers.length > 0) ? tiers : c.candidate_pricing,
-              };
-            });
+            for (const cluster of transformed) {
+              if (cluster.candidate_pricing.length === 0) {
+                const tiers = await apiClient.getVendorPricingTiers(token, cluster.key);
+                if (tiers && Array.isArray(tiers) && tiers.length > 0) {
+                  cluster.candidate_pricing = tiers as unknown as VendorPricing[];
+                }
+              }
+            }
           } catch (e) {
             // keep existing candidate_pricing if vendor tiers fetch fails
+            console.error("Failed to fetch pricing tiers:", e);
           }
           setClusters(transformed);
           
@@ -456,7 +506,7 @@ export default function SimilarSoftwarePage() {
     };
 
     fetchClusters();
-  }, [token, companyCode, category, minSimilarity]);
+  }, [token]);
 
   const enriched = useMemo(() => {
     return clusters.map(cluster => {
@@ -483,12 +533,25 @@ export default function SimilarSoftwarePage() {
     });
   }, [clusters, policy, selectedTarget]);
 
-  const sorted = useMemo(() => {
-    const arr = [...enriched];
+  const filteredAndSorted = useMemo(() => {
+    let filtered = enriched;
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(({ cluster }) => 
+        cluster.apps.some(app => 
+          app.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+    
+    // Apply sort
+    const arr = [...filtered];
     if (sortBy === 'savings') arr.sort((a, b) => b.saving - a.saving);
     if (sortBy === 'apps') arr.sort((a, b) => b.cluster.apps.length - a.cluster.apps.length);
+    
     return arr;
-  }, [enriched, sortBy]);
+  }, [enriched, sortBy, searchQuery]);
 
   const totals = useMemo(() => {
     const totalGroups = clusters.length;
@@ -537,79 +600,6 @@ export default function SimilarSoftwarePage() {
                 <p className="text-gray-600 mt-1">AI-powered matching • Consolidation savings with tiered pricing</p>
               </div>
             </div>
-            <div className="hidden md:flex items-center space-x-3">
-              <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center space-x-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-700">Scope</span>
-                <select
-                  className="bg-transparent border-none text-sm focus:outline-none"
-                  value={companyCode || ''}
-                  onChange={e => setCompanyCode(e.target.value || undefined)}
-                >
-                  <option value="">Group - All subsidiaries</option>
-                  <option value="SCBX">SCBX</option>
-                  <option value="SCBT">SCB Tech</option>
-                </select>
-              </div>
-              <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center space-x-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-700">Category</span>
-                <select
-                  className="bg-transparent border-none text-sm focus:outline-none"
-                  value={category || ''}
-                  onChange={e => setCategory(e.target.value || undefined)}
-                >
-                  <option value="">All Categories</option>
-                  <option value="Design">Design</option>
-                  <option value="Analytics">Analytics</option>
-                  <option value="Project Management">Project Management</option>
-                </select>
-              </div>
-              <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center space-x-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-700">Similarity</span>
-                <input
-                  type="range"
-                  min={50}
-                  max={100}
-                  value={minSimilarity}
-                  onChange={e => setMinSimilarity(Number(e.target.value))}
-                  className="w-24 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="text-sm font-medium text-primary-600">&gt;{minSimilarity}%</span>
-              </div>
-              <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center space-x-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-700">Training/คน</span>
-                <input
-                  type="number"
-                  className="w-24 bg-transparent border-none text-sm focus:outline-none"
-                  value={policy.training_cost_per_user}
-                  onChange={e => setPolicy(p => ({ ...p, training_cost_per_user: Number(e.target.value || 0) }))}
-                />
-              </div>
-              <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center space-x-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-700">Migration Flat</span>
-                <input
-                  type="number"
-                  className="w-28 bg-transparent border-none text-sm focus:outline-none"
-                  value={policy.migration_flat_cost}
-                  onChange={e => setPolicy(p => ({ ...p, migration_flat_cost: Number(e.target.value || 0) }))}
-                />
-              </div>
-              <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center space-x-2 shadow-sm">
-                <span className="text-sm font-medium text-gray-700">Penalty</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  className="w-20 bg-transparent border-none text-sm focus:outline-none"
-                  value={policy.early_termination_penalty_rate}
-                  onChange={e => setPolicy(p => ({ ...p, early_termination_penalty_rate: Number(e.target.value || 0) }))}
-                />
-              </div>
-              <button onClick={handleExport} className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-sm flex items-center">
-                <svg viewBox="0 0 24 24" className="h-4 w-4 mr-2" fill="currentColor"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h4.66V9h3.84L12 2z"/></svg>
-                Export
-              </button>
-            </div>
           </div>
         </div>
 
@@ -634,28 +624,141 @@ export default function SimilarSoftwarePage() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-gray-700">Sort by</span>
-            <select
-              className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
-            >
-              <option value="savings">Savings (High to Low)</option>
-              <option value="apps">Number of Apps</option>
-            </select>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">Sort by</span>
+              <select
+                className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value as any)}
+              >
+                <option value="savings">Savings (High to Low)</option>
+                <option value="apps">Number of Apps</option>
+              </select>
+            </div>
+            <div className="text-sm text-gray-500">
+              Showing {filteredAndSorted.length} groups{lastUpdated && ` • Updated ${formatTimeAgo(Math.floor((new Date().getTime() - lastUpdated.getTime()) / 60000))}`}
+            </div>
           </div>
-          <div className="text-sm text-gray-500">
-            Showing {sorted.length} groups{lastUpdated && ` • Updated ${formatTimeAgo(Math.floor((new Date().getTime() - lastUpdated.getTime()) / 60000))}`}
+          <div className="flex justify-end">
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                placeholder="Search software by name..."
+                className="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyPress={e => {
+                  if (e.key === 'Enter') {
+                    // Trigger search on Enter
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  // Trigger search
+                }}
+                className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-sm flex items-center"
+              >
+                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Search
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          {sorted.map(({ cluster, currentYear, proposedYear, saving, savingPct, totalUnits, chosenPricing, licensesYear, switchYear }) => {
+          {filteredAndSorted.map(({ cluster, currentYear, proposedYear, saving, savingPct, totalUnits, chosenPricing, licensesYear, switchYear }) => {
             const theme = getClusterTheme(cluster.name);
             const features = getCommonFeatures(cluster.name);
             const similarity = Math.min(95, 60 + cluster.apps.length * 8);
+            const clusterSelectedSubsidiary = selectedSubsidiary[cluster.key] || '';
+            const clusterSelectedApp = selectedAppId[cluster.key] || null;
+            
+            // Filter datatable rows based on selected app and subsidiary
+            let datatableRows = cluster.apps;
+            
+            // Filter by selected app
+            if (clusterSelectedApp) {
+              datatableRows = datatableRows.filter(app => app.app_id === clusterSelectedApp);
+            }
+            
+            // Filter by selected subsidiary
+            if (clusterSelectedSubsidiary) {
+              datatableRows = datatableRows.filter(app => 
+                app.subsidiaries.includes(clusterSelectedSubsidiary)
+              );
+            }
+            
+            // Group by app_id and subsidiary to show unique combinations
+            const groupedRows = new Map<string, {
+              app_id: string;
+              name: string;
+              vendor_name: string;
+              subsidiary: string;
+              users: number;
+              price_per_seat: number;
+              billing_period: "monthly" | "yearly";
+            }>();
+            
+            datatableRows.forEach(app => {
+              app.subsidiaries.forEach(subsidiary => {
+                // If filtering by subsidiary, only show matching ones
+                if (!clusterSelectedSubsidiary || subsidiary === clusterSelectedSubsidiary) {
+                  const key = `${app.app_id}-${subsidiary}`;
+                  if (!groupedRows.has(key)) {
+                    groupedRows.set(key, {
+                      app_id: app.app_id,
+                      name: app.name,
+                      vendor_name: app.vendor_name,
+                      subsidiary: subsidiary,
+                      users: app.users, // TODO: Get actual users per subsidiary
+                      price_per_seat: app.price_per_seat,
+                      billing_period: app.billing_period as "monthly" | "yearly",
+                    });
+                  }
+                }
+              });
+            });
+            
+            const uniqueDatatableRows = Array.from(groupedRows.values());
+            
+            // Calculate summary from datatable
+            let summaryFromDatatable = {
+              tools: 0,
+              totalUsers: 0,
+              currentCost: 0,
+              consolidationPotential: 0,
+            };
+            
+            if (uniqueDatatableRows.length > 0) {
+              // Count unique apps
+              const uniqueApps = new Set(uniqueDatatableRows.map(r => r.app_id));
+              const tools = uniqueApps.size;
+              const totalUsers = uniqueDatatableRows.reduce((sum, row) => sum + row.users, 0);
+              const currentCost = uniqueDatatableRows.reduce((sum, row) => {
+                const perSeatYear = normalizeToYear(row.price_per_seat, row.billing_period);
+                return sum + row.users * perSeatYear;
+              }, 0);
+              
+              const proposedLicensesYear = chosenPricing 
+                ? calcProposedLicensesCostYear(totalUsers, chosenPricing)
+                : 0;
+              const switchYear = calcSwitchingCostYear(totalUsers, policy, currentCost);
+              const proposedTotal = proposedLicensesYear + switchYear;
+              const consolidationPotential = Math.max(currentCost - proposedTotal, 0);
+              
+              summaryFromDatatable = {
+                tools,
+                totalUsers,
+                currentCost,
+                consolidationPotential,
+              };
+            }
+            
             return (
               <div key={cluster.key} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow shadow-sm">
                 <div className="flex items-center justify-between mb-5">
@@ -670,7 +773,6 @@ export default function SimilarSoftwarePage() {
                           {cluster.apps.length} applications
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500">{cluster.apps.length} applications across {Math.max(1, Math.floor(cluster.apps.length / 2))} subsidiaries</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -685,13 +787,43 @@ export default function SimilarSoftwarePage() {
                   </div>
                 </div>
 
+                {/* Subsidiary Dropdown */}
+                <div className="mb-5">
+                  <div className="text-sm font-medium text-gray-700 mb-1">Subsidiary</div>
+                  <select
+                    className="w-1/4 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={selectedSubsidiary[cluster.key] || ''}
+                    onChange={e => {
+                      const selected = e.target.value;
+                      setSelectedSubsidiary(prev => ({ ...prev, [cluster.key]: selected }));
+                    }}
+                  >
+                    <option value="">Select Subsidiary</option>
+                    {subsidiaries.map(sub => (
+                      <option key={sub.code} value={sub.code}>{sub.name} ({sub.code})</option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* App tiles */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {cluster.apps.slice(0, 4).map(app => {
                     const perSeatYear = normalizeToYear(app.price_per_seat, app.billing_period);
                     const logoURL = getAppLogoURL(app.name);
+                    const isSelected = clusterSelectedApp === app.app_id;
                     return (
-                      <div key={app.app_id} className="bg-gray-50 rounded-lg p-4 border">
+                      <div
+                        key={app.app_id}
+                        className={`bg-gray-50 rounded-lg p-4 border cursor-pointer transition-all hover:shadow-md ${
+                          isSelected ? 'ring-2 ring-primary-500 border-primary-500 bg-blue-50' : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedAppId(prev => ({
+                            ...prev,
+                            [cluster.key]: isSelected ? null : app.app_id
+                          }));
+                        }}
+                      >
                         <div className="flex items-center space-x-3 mb-2">
                           <img 
                             src={logoURL} 
@@ -761,20 +893,20 @@ export default function SimilarSoftwarePage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Tools:</span>
-                        <span className="font-medium">{cluster.apps.length}</span>
+                        <span className="font-medium">{summaryFromDatatable.tools}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Total Users:</span>
-                        <span className="font-medium">{totalUnits.toLocaleString()}</span>
+                        <span className="font-medium">{summaryFromDatatable.totalUsers.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Current Cost:</span>
-                        <span className="font-medium">{thb(currentYear)}/year</span>
+                        <span className="font-medium">{thb(summaryFromDatatable.currentCost)}/year</span>
                       </div>
                       <div className="border-t border-green-200 pt-2">
                         <div className="flex justify-between items-center">
                           <span className="text-green-700 font-medium">Consolidation Potential:</span>
-                          <span className="text-xl font-bold text-green-600">{thb(saving)}</span>
+                          <span className="text-xl font-bold text-green-600">{thb(summaryFromDatatable.consolidationPotential)}</span>
                         </div>
                       </div>
                     </div>
@@ -789,6 +921,7 @@ export default function SimilarSoftwarePage() {
                           <tr className="text-left text-gray-500">
                             <th className="py-2 pr-4">App</th>
                             <th className="py-2 pr-4">Vendor</th>
+                            <th className="py-2 pr-4">Subsidiary</th>
                             <th className="py-2 pr-4">Users</th>
                             <th className="py-2 pr-4">Price/Seat</th>
                             <th className="py-2 pr-4">Period</th>
@@ -796,19 +929,28 @@ export default function SimilarSoftwarePage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {cluster.apps.map(app => {
-                            const perSeatYear = normalizeToYear(app.price_per_seat, app.billing_period);
-                            return (
-                              <tr key={app.app_id} className="border-t">
-                                <td className="py-2 pr-4">{app.name}</td>
-                                <td className="py-2 pr-4">{app.vendor_name}</td>
-                                <td className="py-2 pr-4">{app.users.toLocaleString()}</td>
-                                <td className="py-2 pr-4">{thb(app.price_per_seat)}</td>
-                                <td className="py-2 pr-4">{app.billing_period}</td>
-                                <td className="py-2 pr-4">{thb(perSeatYear * app.users)}</td>
-                              </tr>
-                            );
-                          })}
+                          {uniqueDatatableRows.length === 0 ? (
+                            <tr>
+                              <td colSpan={7} className="py-4 text-center text-gray-500">
+                                No apps match the selected filters
+                              </td>
+                            </tr>
+                          ) : (
+                            uniqueDatatableRows.map((row, idx) => {
+                              const perSeatYear = normalizeToYear(row.price_per_seat, row.billing_period);
+                              return (
+                                <tr key={`${row.app_id}-${row.subsidiary}-${idx}`} className="border-t">
+                                  <td className="py-2 pr-4">{row.name}</td>
+                                  <td className="py-2 pr-4">{row.vendor_name}</td>
+                                  <td className="py-2 pr-4">{row.subsidiary}</td>
+                                  <td className="py-2 pr-4">{row.users.toLocaleString()}</td>
+                                  <td className="py-2 pr-4">{thb(row.price_per_seat)}</td>
+                                  <td className="py-2 pr-4">{row.billing_period}</td>
+                                  <td className="py-2 pr-4">{thb(perSeatYear * row.users)}</td>
+                                </tr>
+                              );
+                            })
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -865,31 +1007,6 @@ export default function SimilarSoftwarePage() {
                         className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors shadow-sm"
                       >
                         Dismiss
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const payload = {
-                            cluster_key: cluster.key,
-                            cluster_name: cluster.name,
-                            apps: cluster.apps,
-                            savings: { current: currentYear, proposed: proposedYear, potential: saving },
-                            target_vendor: chosenPricing?.vendor_name,
-                          };
-                          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-                          const url = URL.createObjectURL(blob);
-                          const link = document.createElement('a');
-                          link.href = url;
-                          link.download = `cluster_${cluster.key}_export.json`;
-                          link.click();
-                          link.remove();
-                          URL.revokeObjectURL(url);
-                        }}
-                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors shadow-sm flex items-center"
-                      >
-                        <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                        Export
                       </button>
                     </div>
                     <div className="text-sm text-gray-500 pt-1">

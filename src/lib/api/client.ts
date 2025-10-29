@@ -212,19 +212,33 @@ class ApiClient {
   // Similar Software / Consolidation
   async getSimilarSoftwareClusters(token: string, filters?: {
     company_code?: string;
+    subsidiaries?: string[];
     min_similarity?: number;
     category?: string;
+    app_name?: string;
   }) {
     const params = new URLSearchParams();
     if (filters?.company_code) params.append("company_code", filters.company_code);
+    if (filters?.subsidiaries) {
+      filters.subsidiaries.forEach(code => params.append("subsidiaries", code));
+    }
     if (filters?.min_similarity) params.append("min_similarity", filters.min_similarity.toString());
     if (filters?.category) params.append("category", filters.category);
+    if (filters?.app_name) params.append("app_name", filters.app_name);
     
     const queryString = params.toString();
     const endpoint = queryString 
       ? `/similar-software/clusters?${queryString}`
       : "/similar-software/clusters";
     return this.request(endpoint, { token });
+  }
+
+  async getCompanies(token: string) {
+    const response = await this.request<{companies: Array<{id: number; code: string; name: string}>}>(
+      "/companies",
+      { token }
+    );
+    return response.companies;
   }
 
   async getVendorPricingTiers(token: string, clusterKey?: string, vendorId?: string) {
