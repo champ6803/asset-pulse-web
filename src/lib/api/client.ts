@@ -208,6 +208,53 @@ class ApiClient {
   async getDashboardMetrics(token: string) {
     return this.request("/analytics/dashboard", { token });
   }
+
+  // Similar Software / Consolidation
+  async getSimilarSoftwareClusters(token: string, filters?: {
+    company_code?: string;
+    min_similarity?: number;
+    category?: string;
+  }) {
+    const params = new URLSearchParams();
+    if (filters?.company_code) params.append("company_code", filters.company_code);
+    if (filters?.min_similarity) params.append("min_similarity", filters.min_similarity.toString());
+    if (filters?.category) params.append("category", filters.category);
+    
+    const queryString = params.toString();
+    const endpoint = queryString 
+      ? `/similar-software/clusters?${queryString}`
+      : "/similar-software/clusters";
+    return this.request(endpoint, { token });
+  }
+
+  async getVendorPricingTiers(token: string, clusterKey?: string, vendorId?: string) {
+    const params = new URLSearchParams();
+    if (clusterKey) params.append("cluster_key", clusterKey);
+    if (vendorId) params.append("vendor_id", vendorId);
+    
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `/vendors/pricing-tiers?${queryString}`
+      : "/vendors/pricing-tiers";
+    return this.request(endpoint, { token });
+  }
+
+  async simulateSavings(
+    token: string,
+    data: {
+      cluster_key: string;
+      target_vendor_id: string;
+      training_cost_per_user?: number;
+      migration_flat_cost?: number;
+      early_termination_penalty_rate?: number;
+    }
+  ) {
+    return this.request("/similar-software/saving-simulation", {
+      method: "POST",
+      body: JSON.stringify(data),
+      token,
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
