@@ -85,6 +85,28 @@ class ApiClient {
     });
   }
 
+  async getNewHireRecommendations<
+    T = any
+  >(
+    data: {
+      job_title?: string;
+      job_description?: string;
+      department?: string;
+      company_code?: string;
+      app_name?: string;
+      limit?: number;
+      experience?: string;
+      skills?: string[];
+    },
+    token: string
+  ) {
+    return this.request<T>("/ai/recommendations/new-hire", {
+      method: "POST",
+      body: JSON.stringify(data),
+      token,
+    });
+  }
+
   async getSeatOptimization(token: string, filters?: any) {
     const params = new URLSearchParams(filters);
     return this.request(`/recommendations/seat-optimization?${params}`, {

@@ -1,84 +1,80 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Link from 'next/link';
+import { useNewHireRecommendations, type NewHireRecommendation } from '@/lib/hooks/useNewHireRecommendations';
 
 
-const mockRecommendations = [
-  {
-    id: '1',
-    appName: 'GitHub Enterprise',
-    category: 'DevOps',
-    tier: 'Pro License',
-    relevanceScore: 96,
-    cost: 12000,
-    rationale: 'Job mentions version control, CI/CD pipelines, and code collaboration',
-    icon: 'fab fa-github',
-    selected: true,
-  },
-  {
-    id: '2',
-    appName: 'Slack Pro',
-    category: 'Collaboration',
-    tier: 'Pro License',
-    relevanceScore: 92,
-    cost: 8500,
-    rationale: 'Engineering role requires team communication and file sharing',
-    icon: 'fab fa-slack',
-    selected: false,
-  },
-  {
-    id: '3',
-    appName: 'Docker Pro',
-    category: 'DevOps',
-    tier: 'Pro License',
-    relevanceScore: 89,
-    cost: 7200,
-    rationale: 'Containerization experience mentioned in requirements',
-    icon: 'fab fa-docker',
-    selected: true,
-  },
-  {
-    id: '4',
-    appName: 'Jira Software',
-    category: 'Collaboration',
-    tier: 'Standard',
-    relevanceScore: 87,
-    cost: 9600,
-    rationale: 'Agile development and project management required',
-    icon: 'fas fa-tasks',
-    selected: false,
-  },
-  {
-    id: '5',
-    appName: 'VS Code Pro',
-    category: 'DevOps',
-    tier: 'Pro License',
-    relevanceScore: 85,
-    cost: 4800,
-    rationale: 'Code editor with advanced features for development',
-    icon: 'fas fa-code',
-    selected: false,
-  },
-  {
-    id: '6',
-    appName: 'Figma Professional',
-    category: 'Design',
-    tier: 'Professional',
-    relevanceScore: 78,
-    cost: 14400,
-    rationale: 'Frontend role may require design collaboration tools',
-    icon: 'fab fa-figma',
-    selected: true,
-  },
-];
+type UIRecommendation = NewHireRecommendation & { id: string };
 
 export default function RecommendationsPage() {
   const router = useRouter();
-  const [recommendations, setRecommendations] = useState(mockRecommendations);
+  const searchParams = useSearchParams();
+
+  const step1Data = useMemo(() => {
+    const qp = {
+      jobTitle: searchParams.get('job_title') || undefined,
+      jobDescription: searchParams.get('job_description') || undefined,
+      department: searchParams.get('department') || undefined,
+      company: searchParams.get('company') || undefined,
+    };
+
+    // Fallback to sessionStorage if query params missing
+    if (!qp.jobTitle || !qp.jobDescription || !qp.department || !qp.company) {
+      try {
+        const saved = sessionStorage.getItem('newHireStep1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return {
+            jobTitle: qp.jobTitle ?? parsed?.jobTitle,
+            jobDescription: qp.jobDescription ?? parsed?.jobDescription,
+            department: qp.department ?? parsed?.department,
+            company: qp.company ?? parsed?.company,
+          };
+        }
+      } catch {}
+    }
+    return qp;
+  }, [searchParams]);
+
+  const appName = searchParams.get('app_name') || undefined;
+  const { data, isLoading, error } = useNewHireRecommendations(step1Data, appName);
+
+  const [recommendations, setRecommendations] = useState<UIRecommendation[]>([]);
+  useEffect(() => {
+    if (data) {
+      const mapped: UIRecommendation[] = data.map((r, idx) => ({
+        id: `${idx}`,
+        ...r,
+        app_name: r.app_name,
+        selected: typeof r.selected === 'boolean' ? r.selected : false,
+      }));
+      setRecommendations(mapped);
+    }
+  }, [data]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState<'relevance' | 'cost' | 'category'>('relevance');
+
+  // Fallback icon resolver to make sure we always show an icon
+  const resolveIconClass = (name?: string, provided?: string) => {
+    if (provided && provided.trim().length > 0) return provided;
+    const n = (name || '').toLowerCase();
+    if (n.includes('github')) return 'fab fa-github';
+    if (n.includes('gitlab')) return 'fab fa-gitlab';
+    if (n.includes('bitbucket')) return 'fab fa-bitbucket';
+    if (n.includes('slack')) return 'fab fa-slack';
+    if (n.includes('microsoft') || n.includes('teams')) return 'fab fa-microsoft';
+    if (n.includes('figma')) return 'fab fa-figma';
+    if (n.includes('jira')) return 'fab fa-jira';
+    if (n.includes('notion')) return 'fab fa-notion';
+    if (n.includes('google')) return 'fab fa-google';
+    if (n.includes('aws') || n.includes('amazon')) return 'fab fa-aws';
+    if (n.includes('azure')) return 'fab fa-microsoft';
+    if (n.includes('visual studio') || n.includes('vs code') || n.includes('vscode')) return 'fas fa-code';
+    return 'fas fa-cube';
+  };
 
   const toggleSelection = (id: string) => {
     setRecommendations(recommendations.map(rec =>
@@ -89,11 +85,39 @@ export default function RecommendationsPage() {
   const selectedCount = recommendations.filter(r => r.selected).length;
   const totalCost = recommendations
     .filter(r => r.selected)
-    .reduce((sum, r) => sum + r.cost, 0);
+    .reduce((sum, r) => sum + (r.cost || 0), 0);
 
   const handleNext = () => {
     router.push('/requests/new-hire/review');
   };
+
+  // Derived lists with filter/sort
+  const filteredSorted = useMemo(() => {
+    let list = recommendations;
+    if (selectedCategory !== 'all') {
+      const target = selectedCategory.toLowerCase();
+      list = list.filter(r => (r.category || '').toLowerCase() === target);
+    }
+    const sorted = [...list];
+    if (sortBy === 'relevance') {
+      sorted.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+    } else if (sortBy === 'cost') {
+      sorted.sort((a, b) => (a.cost || 0) - (b.cost || 0));
+    } else if (sortBy === 'category') {
+      sorted.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+    }
+    return sorted;
+  }, [recommendations, selectedCategory, sortBy]);
+
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    recommendations.forEach(r => {
+      const key = (r.category || 'other').toLowerCase();
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
+  }, [recommendations]);
 
   return (
     <DashboardLayout>
@@ -106,14 +130,18 @@ export default function RecommendationsPage() {
               <div>
                 <div className="flex items-center mb-2">
                   <h1 className="text-2xl font-bold text-gray-900">AI Recommendations</h1>
-                  <div className="ml-4 flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <i className="fas fa-robot mr-2"></i>
-                    95% Confidence
-                  </div>
+                  {!!data && (
+                    <div className="ml-4 flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                      <i className="fas fa-robot mr-2"></i>
+                      AI Results
+                    </div>
+                  )}
                 </div>
-                <p className="text-gray-600">
-                  Sarah Johnson • Senior Software Engineer • Total: 89,500 THB/year
-                </p>
+                {step1Data?.jobTitle && (
+                  <p className="text-gray-600">
+                    {step1Data.jobTitle}
+                  </p>
+                )}
               </div>
               <Link
                 href="/requests/new-hire"
@@ -167,7 +195,7 @@ export default function RecommendationsPage() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  All (10)
+                  All ({recommendations.length})
                 </button>
                 <button
                   onClick={() => setSelectedCategory('devops')}
@@ -177,7 +205,7 @@ export default function RecommendationsPage() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  DevOps (3)
+                  DevOps ({categoryCounts['devops'] || 0})
                 </button>
                 <button
                   onClick={() => setSelectedCategory('collaboration')}
@@ -187,7 +215,7 @@ export default function RecommendationsPage() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  Collaboration (4)
+                  Collaboration ({categoryCounts['collaboration'] || 0})
                 </button>
                 <button
                   onClick={() => setSelectedCategory('security')}
@@ -197,7 +225,7 @@ export default function RecommendationsPage() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  Security (2)
+                  Security ({categoryCounts['security'] || 0})
                 </button>
                 <button
                   onClick={() => setSelectedCategory('design')}
@@ -207,15 +235,19 @@ export default function RecommendationsPage() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  Design (1)
+                  Design ({categoryCounts['design'] || 0})
                 </button>
               </div>
               <div className="flex items-center">
                 <span className="text-sm text-gray-600 mr-3">Sort by:</span>
-                <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                  <option>Relevance Score</option>
-                  <option>Annual Cost</option>
-                  <option>Category</option>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy((e.target.value as any) ?? 'relevance')}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="relevance">Relevance Score</option>
+                  <option value="cost">Annual Cost</option>
+                  <option value="category">Category</option>
                 </select>
               </div>
             </div>
@@ -223,7 +255,13 @@ export default function RecommendationsPage() {
 
           {/* Recommendations Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {recommendations.map((rec) => (
+            {isLoading && (
+              <div className="col-span-1 md:col-span-2 text-gray-500">Loading recommendations...</div>
+            )}
+            {error && (
+              <div className="col-span-1 md:col-span-2 text-red-600">Failed to load recommendations</div>
+            )}
+            {!isLoading && !error && filteredSorted.map((rec) => (
               <div
                 key={rec.id}
                 className={`bg-white rounded-xl shadow-sm p-6 relative ${
@@ -234,10 +272,11 @@ export default function RecommendationsPage() {
                   <button
                     className="text-gray-400 hover:text-gray-600 p-1"
                     title="Why recommended?"
+                    onClick={() => alert(rec.rationale || 'AI rationale is not available for this item.')}
                   >
                     <i className="fas fa-question-circle"></i>
                   </button>
-                  <button className="text-gray-400 hover:text-red-500 p-1">
+                  <button className="text-gray-400 hover:text-red-500 p-1" title="Remove from list" onClick={() => setRecommendations(prev => prev.filter(r => r.id !== rec.id))}>
                     <i className="fas fa-times"></i>
                   </button>
                   <button
@@ -253,10 +292,10 @@ export default function RecommendationsPage() {
                 </div>
                 <div className="flex items-start mb-4">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                    <i className={`${rec.icon} text-gray-600 text-xl`}></i>
+                    <i className={`${resolveIconClass(rec.app_name, rec.icon)} text-gray-600 text-xl`}></i>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{rec.appName}</h3>
+                    <h3 className="font-semibold text-gray-900">{rec.app_name}</h3>
                     <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mt-1">
                       {rec.category}
                     </span>
@@ -266,23 +305,23 @@ export default function RecommendationsPage() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">Relevance Score</span>
                     <span className={`text-sm font-bold ${
-                      rec.relevanceScore >= 90 ? 'text-green-600' : 'text-blue-600'
+                      (rec.relevance_score || 0) >= 90 ? 'text-green-600' : 'text-blue-600'
                     }`}>
-                      {rec.relevanceScore}%
+                      {Math.round(rec.relevance_score || 0)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
-                        rec.relevanceScore >= 90 ? 'bg-green-500' : 'bg-blue-500'
+                        (rec.relevance_score || 0) >= 90 ? 'bg-green-500' : 'bg-blue-500'
                       }`}
-                      style={{ width: `${rec.relevanceScore}%` }}
+                      style={{ width: `${rec.relevance_score || 0}%` }}
                     />
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-gray-900">
-                    {rec.cost.toLocaleString()} THB/year
+                    {(rec.cost || 0).toLocaleString()} THB/year
                   </span>
                   <span className="text-sm text-gray-500">{rec.tier}</span>
                 </div>
@@ -382,11 +421,11 @@ export default function RecommendationsPage() {
                 <div key={rec.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
-                      <i className={`${rec.icon} text-gray-600 text-sm`}></i>
+                      <i className={`${resolveIconClass(rec.app_name, rec.icon)} text-gray-600 text-sm`}></i>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{rec.appName}</p>
-                      <p className="text-xs text-gray-600">{rec.cost.toLocaleString()} THB/year</p>
+                      <p className="text-sm font-medium text-gray-900">{rec.app_name}</p>
+                      <p className="text-xs text-gray-600">{(rec.cost || 0).toLocaleString()} THB/year</p>
                     </div>
                   </div>
                   <button

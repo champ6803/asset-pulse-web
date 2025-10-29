@@ -27,8 +27,27 @@ export default function NewHireForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to recommendations page
-    router.push('/requests/new-hire/recommendations');
+    // Persist to sessionStorage for fallback retrieval
+    try {
+      sessionStorage.setItem(
+        "newHireStep1",
+        JSON.stringify({
+          jobTitle: formData.jobTitle,
+          jobDescription: formData.jobDescription,
+          department: formData.department,
+          company: formData.company,
+        })
+      );
+    } catch {}
+
+    // Navigate to recommendations page with query params per spec
+    const params = new URLSearchParams({
+      job_title: formData.jobTitle,
+      job_description: formData.jobDescription,
+      department: formData.department,
+      company: formData.company,
+    });
+    router.push(`/requests/new-hire/recommendations?${params.toString()}`);
   };
 
   const handleCancel = () => {
