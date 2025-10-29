@@ -1,7 +1,21 @@
 // API Client for backend communication
 // This is a mock implementation - replace with real API calls when backend is ready
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+import { UserRole } from "@/types";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  display_name: string;
+  company_code: string;
+  department_code: string;
+  role: UserRole;
+  status: string;
+}
 
 interface RequestOptions extends RequestInit {
   token?: string;
@@ -14,11 +28,14 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options: RequestOptions = {}
+  ): Promise<T> {
     const { token, ...fetchOptions } = options;
 
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
@@ -36,46 +53,49 @@ class ApiClient {
   }
 
   // Authentication
-  async login(username: string, password: string): Promise<{ data: { token: string; user: any } }> {
-    return this.request('/auth/login', {
-      method: 'POST',
+  async login(
+    username: string,
+    password: string
+  ): Promise<{ data: { token: string; user: User } }> {
+    return this.request("/auth/login", {
+      method: "POST",
       body: JSON.stringify({ username, password }),
     });
   }
 
   async logout(): Promise<void> {
-    return this.request('/auth/logout', {
-      method: 'POST',
+    return this.request("/auth/logout", {
+      method: "POST",
     });
   }
 
-  async getCurrentUser(token: string): Promise<{ data: any }> {
-    return this.request('/me', {
-      method: 'GET',
+  async getCurrentUser(token: string): Promise<{ data: User }> {
+    return this.request("/me", {
+      method: "GET",
       token,
     });
   }
 
   // AI Recommendations
   async generateJDRecommendations(jobData: any, token: string) {
-    return this.request('/ai/recommendations/jd-match', {
-      method: 'POST',
+    return this.request("/ai/recommendations/jd-match", {
+      method: "POST",
       body: JSON.stringify(jobData),
       token,
     });
   }
 
   async generateConsolidationMemo(consolidationData: any, token: string) {
-    return this.request('/ai/consolidation/memo', {
-      method: 'POST',
+    return this.request("/ai/consolidation/memo", {
+      method: "POST",
       body: JSON.stringify(consolidationData),
       token,
     });
   }
 
   async calculateSoftwareSimilarity(similarityData: any, token: string) {
-    return this.request('/ai/similarity', {
-      method: 'POST',
+    return this.request("/ai/similarity", {
+      method: "POST",
       body: JSON.stringify(similarityData),
       token,
     });
@@ -83,29 +103,29 @@ class ApiClient {
 
   // Dashboard endpoints
   async getEmployeeDashboard(token: string) {
-    return this.request('/employee/dashboard', {
-      method: 'GET',
+    return this.request("/employee/dashboard", {
+      method: "GET",
       token,
     });
   }
 
   async getManagerDashboard(token: string) {
-    return this.request('/manager/dashboard', {
-      method: 'GET',
+    return this.request("/manager/dashboard", {
+      method: "GET",
       token,
     });
   }
 
   async getCTODashboard(token: string) {
-    return this.request('/cto/dashboard', {
-      method: 'GET',
+    return this.request("/cto/dashboard", {
+      method: "GET",
       token,
     });
   }
 
   async getGroupCTODashboard(token: string) {
-    return this.request('/group-cto/dashboard', {
-      method: 'GET',
+    return this.request("/group-cto/dashboard", {
+      method: "GET",
       token,
     });
   }
@@ -124,43 +144,45 @@ class ApiClient {
     }
   ) {
     const queryParams = new URLSearchParams();
-    if (params?.companyCode) queryParams.append('company_code', params.companyCode);
-    if (params?.departmentCode) queryParams.append('department_code', params.departmentCode);
-    if (params?.appName) queryParams.append('app_name', params.appName);
-    if (params?.action) queryParams.append('action', params.action);
-    if (params?.sortBy) queryParams.append('sort_by', params.sortBy);
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    if (params?.companyCode)
+      queryParams.append("company_code", params.companyCode);
+    if (params?.departmentCode)
+      queryParams.append("department_code", params.departmentCode);
+    if (params?.appName) queryParams.append("app_name", params.appName);
+    if (params?.action) queryParams.append("action", params.action);
+    if (params?.sortBy) queryParams.append("sort_by", params.sortBy);
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.offset) queryParams.append("offset", params.offset.toString());
 
     const endpoint = queryParams.toString()
       ? `/cto/optimization?${queryParams.toString()}`
-      : '/cto/optimization';
+      : "/cto/optimization";
 
     return this.request(endpoint, {
-      method: 'GET',
+      method: "GET",
       token,
     });
   }
 
   // Consolidation
   async getConsolidationOpportunities(token: string) {
-    return this.request('/group-cto/consolidation', {
-      method: 'GET',
+    return this.request("/group-cto/consolidation", {
+      method: "GET",
       token,
     });
   }
 
   async getConsolidationOpportunityById(id: string, token: string) {
     return this.request(`/group-cto/consolidation/${id}`, {
-      method: 'GET',
+      method: "GET",
       token,
     });
   }
 
   // Approvals
   async getPendingApprovals(token: string) {
-    return this.request('/manager/approvals', {
-      method: 'GET',
+    return this.request("/manager/approvals", {
+      method: "GET",
       token,
     });
   }
@@ -168,25 +190,29 @@ class ApiClient {
   // Users
   async getUsers(token: string, params?: any) {
     const queryParams = new URLSearchParams(params).toString();
-    const endpoint = queryParams ? `/users?${queryParams}` : '/users';
+    const endpoint = queryParams ? `/users?${queryParams}` : "/users";
     return this.request(endpoint, {
-      method: 'GET',
+      method: "GET",
       token,
     });
   }
 
   // User Licenses
-  async getUserLicenses(token: string, params?: { search?: string; status?: string }) {
+  async getUserLicenses(
+    token: string,
+    params?: { search?: string; status?: string }
+  ) {
     const queryParams = new URLSearchParams();
-    if (params?.search) queryParams.append('search', params.search);
-    if (params?.status && params.status !== 'all') queryParams.append('status', params.status);
-    
-    const endpoint = queryParams.toString() 
-      ? `/employee/licenses?${queryParams.toString()}` 
-      : '/employee/licenses';
-      
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.status && params.status !== "all")
+      queryParams.append("status", params.status);
+
+    const endpoint = queryParams.toString()
+      ? `/employee/licenses?${queryParams.toString()}`
+      : "/employee/licenses";
+
     return this.request(endpoint, {
-      method: 'GET',
+      method: "GET",
       token,
     });
   }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
+import { AuthProvider } from "@/lib/providers/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Asset Pulse | SCBX Group Asset Management",
@@ -23,7 +24,9 @@ export default function RootLayout({
         ></script>
       </head>
       <body className="bg-gray-50 antialiased">
-        <QueryProvider>{children}</QueryProvider>
+        <AuthProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );
