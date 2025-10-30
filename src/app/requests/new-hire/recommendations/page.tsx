@@ -46,7 +46,8 @@ export default function RecommendationsPage() {
   useEffect(() => {
     if (data) {
       const mapped: UIRecommendation[] = data.map((r, idx) => ({
-        id: `${idx}`,
+        // Stable and unique id across renders and across potential duplicate app names
+        id: `${r.app_name}-${r.tier || 'default'}-${idx}`,
         ...r,
         app_name: r.app_name,
         selected: typeof r.selected === 'boolean' ? r.selected : false,
@@ -77,7 +78,7 @@ export default function RecommendationsPage() {
   };
 
   const toggleSelection = (id: string) => {
-    setRecommendations(recommendations.map(rec =>
+    setRecommendations(prev => prev.map(rec =>
       rec.id === id ? { ...rec, selected: !rec.selected } : rec
     ));
   };
@@ -275,7 +276,7 @@ export default function RecommendationsPage() {
             )}
             {!isLoading && !error && filteredSorted.map((rec) => (
               <div
-                key={rec.id}
+                key={`card-${rec.id}`}
                 className={`bg-white rounded-xl shadow-sm p-6 relative ${
                   rec.selected ? 'border-2 border-green-200' : 'border border-gray-200'
                 }`}
@@ -299,7 +300,14 @@ export default function RecommendationsPage() {
                         : 'border-2 border-gray-300'
                     }`}
                   >
-                    {rec.selected && <i className="fas fa-check text-white text-xs"></i>}
+                    <svg
+                      className={`w-3.5 h-3.5 ${rec.selected ? 'text-white' : 'text-transparent'}`}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </button>
                 </div>
                 <div className="flex items-start mb-4">
@@ -436,7 +444,7 @@ export default function RecommendationsPage() {
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-gray-700 mb-3">Selected Applications</h4>
               {recommendations.filter(r => r.selected).map((rec) => (
-                <div key={rec.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                <div key={`sel-${rec.id}`} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
                       <i className={`${resolveIconClass(rec.app_name, rec.icon)} text-gray-600 text-sm`}></i>
